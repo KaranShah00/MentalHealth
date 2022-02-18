@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -6,6 +7,10 @@ import 'package:mental_health/screens/profile_screen.dart';
 import 'package:mental_health/screens/stats_screen.dart';
 import 'package:mental_health/screens/reminders_screen.dart';
 import 'package:mental_health/screens/help_screen.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import './reminder_screen.dart';
+import '../widgets/notification_utils.dart';
+import '../widgets/new_reminder.dart';
 
 class MyNavigationBar extends StatefulWidget {
   MyNavigationBar({Key? key}) : super(key: key);
@@ -141,14 +146,154 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
+//   _HomeScreenState createState() => _HomeScreenState();
+// }
 
+// class _HomeScreenState extends State<HomeScreen> {
+//   // const HomeScreen({Key? key}) : super(key: key);
+//   // static const List<Color> lineColor = [
+//   //   Color(0xffffffff),
+//   // ];
 class _HomeScreenState extends State<HomeScreen> {
-  // const HomeScreen({Key? key}) : super(key: key);
-  // static const List<Color> lineColor = [
-  //   Color(0xffffffff),
-  // ];
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  User? user;
+  var _isLoading = true;
+  List<Reminder> reminders = [];
+
+  @override
+  void initState() {
+    if (_isLoading) {
+      user = auth.currentUser;
+      super.initState();
+      AwesomeNotifications().isNotificationAllowed().then(
+        (isAllowed) {
+          if (!isAllowed) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Allow Notifications'),
+                content:
+                    const Text('Our app would like to send you notifications'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Don\'t Allow',
+                      style: TextStyle(color: Colors.grey, fontSize: 18),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => AwesomeNotifications()
+                        .requestPermissionToSendNotifications()
+                        .then((_) => Navigator.pop(context)),
+                    child: const Text(
+                      'Allow',
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      );
+      firestore
+          .collection('users')
+          .doc(user?.uid)
+          .collection('reminders')
+          .orderBy('timestamp', descending: true)
+          .get()
+          .then((rems) {
+        for (var rem in rems.docs) {
+          var r = rem.data();
+          // debugPrint("Id: ${r['id']}");
+          // debugPrint("Id type: ${r['id'].runtimeType}");
+          // debugPrint("Doc Id type: ${rem.id.runtimeType}");
+          // debugPrint("Hour Id type: ${r['hour'].runtimeType}");
+          // debugPrint("Minute Id type: ${r['minute'].runtimeType}");
+          reminders.add(Reminder(
+            rem.id,
+            r['id'],
+            r['type'],
+            r['body'],
+            r['year'],
+            r['month'],
+            r['day'],
+            r['weekday'],
+            r['hour'],
+            r['minute'],
+          ));
+        }
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    AwesomeNotifications().createdSink.close();
+    super.dispose();
+  }
+
+  // Future<void> addWeeklyReminder(
+  //     String body, int weekday, int hour, int minute) async {
+  //   await firestore
+  //       .collection('users')
+  //       .doc(user?.uid)
+  //       .collection('reminders')
+  //       .add({
+  //     'user': user?.uid,
+  //     'id': createUniqueId(),
+  //     'body': body,
+  //     'weekday': weekday,
+  //     'hour': hour,
+  //     'minute': minute,
+  //     'type': 'weekly'
+  //   });
+  // }
+
+  // Future<void> addDailyReminder(String body, int hour, int minute) async {
+  //   await firestore
+  //       .collection('users')
+  //       .doc(user?.uid)
+  //       .collection('reminders')
+  //       .add({
+  //     'user': user?.uid,
+  //     'id': createUniqueId(),
+  //     'body': body,
+  //     'hour': hour,
+  //     'minute': minute,
+  //     'type': 'daily'
+  //   });
+  // }
+
+  // Future<void> addHourlyReminder(String body, int hour) async {
+  //   await firestore
+  //       .collection('users')
+  //       .doc(user?.uid)
+  //       .collection('reminders')
+  //       .add({
+  //     'user': user?.uid,
+  //     'id': createUniqueId(),
+  //     'body': body,
+  //     'hour': hour,
+  //     'type': 'hourly'
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

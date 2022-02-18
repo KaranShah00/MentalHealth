@@ -42,6 +42,9 @@ dependencies:
   animations: ^2.0.2
   intl: ^0.17.0
   flutter_colorpicker: ^1.0.3
+  awesome_notifications: ^0.6.21
+  numberpicker: ^2.1.1
+  flutter_speed_dial: ^5.0.0+1
 
 dev_dependencies:
   flutter_test:

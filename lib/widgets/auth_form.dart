@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class AuthForm extends StatefulWidget {
   final Function submitFn;
   final bool isLoading;
-
   AuthForm(this.submitFn, this.isLoading);
 
   @override
@@ -33,19 +32,19 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        margin: EdgeInsets.all(20),
+        margin: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextFormField(
-                    key: ValueKey('email'),
+                    key: const ValueKey('email'),
                     keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email address',
                     ),
                     autocorrect: false,
@@ -66,8 +65,8 @@ class _AuthFormState extends State<AuthForm> {
                       autocorrect: false,
                       textCapitalization: TextCapitalization.words,
                       enableSuggestions: false,
-                      key: ValueKey('username'),
-                      decoration: InputDecoration(
+                      key: const ValueKey('username'),
+                      decoration: const InputDecoration(
                         labelText: 'Username',
                       ),
                       validator: (value) {
@@ -81,8 +80,8 @@ class _AuthFormState extends State<AuthForm> {
                       },
                     ),
                   TextFormField(
-                    key: ValueKey('password'),
-                    decoration: InputDecoration(
+                    key: const ValueKey('password'),
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                     ),
                     obscureText: true,
@@ -96,19 +95,23 @@ class _AuthFormState extends State<AuthForm> {
                       _userPassword = value.toString();
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 12,
                   ),
-                  if (widget.isLoading) CircularProgressIndicator(),
+                  if (widget.isLoading) const CircularProgressIndicator(),
                   if (!widget.isLoading)
-                    RaisedButton(
-                      color: Theme.of(context).accentColor,
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary),
+                      ),
                       child: Text(_isLogin ? 'Login' : 'Signup'),
                       onPressed: _trySubmit,
                     ),
                   if (!widget.isLoading)
-                    FlatButton(
-                      textColor: Theme.of(context).accentColor,
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).colorScheme.secondary
+                      ),
                       child: Text(_isLogin
                           ? 'Create new account'
                           : 'I already have an account'),
