@@ -8,7 +8,6 @@ import 'package:mental_health/screens/stats_screen.dart';
 import 'package:mental_health/screens/reminders_screen.dart';
 import 'package:mental_health/screens/help_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import './reminder_screen.dart';
 import '../widgets/notification_utils.dart';
 import '../widgets/new_reminder.dart';
 
@@ -38,8 +37,8 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
     
   }
 
-  int focusedPage = 4;
-  int previousPage = 4;
+  int focusedPage = 1;
+  int previousPage = 1;
   static List<Widget> _widgetOptions = <Widget>[
     HelpScreen(),
     RemindersScreen(),

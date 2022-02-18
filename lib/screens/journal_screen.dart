@@ -43,7 +43,7 @@ class _JournalScreenState extends State<JournalScreen> {
     super.initState();
     var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
     currentDoc.get().then((data) {
-      _journalController.text = data.docs[0]['entry'];
+      _journalController.text = data.docs.isEmpty? '' : data.docs[0]['entry'];
     });
     // print("Init run");
   }
