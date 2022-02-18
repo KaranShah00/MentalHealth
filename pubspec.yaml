@@ -38,6 +38,9 @@ dependencies:
   firebase_auth: ^3.3.5
   flutter_spinkit: ^5.1.0
   firebase_core: ^1.11.0
+  awesome_notifications: ^0.6.21
+  numberpicker: ^2.1.1
+  flutter_speed_dial: ^5.0.0+1
 
 dev_dependencies:
   flutter_test:
