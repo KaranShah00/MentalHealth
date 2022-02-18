@@ -17,13 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Mental Well Being',
       home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(), builder: (ctx, userSnapshot){
         if(userSnapshot.connectionState == ConnectionState.waiting){
           return LoadingScreen();
         }
         if(userSnapshot.hasData){
-          return HomeScreen();
+          return MyNavigationBar();
         }
         return AuthScreen();
       },),
