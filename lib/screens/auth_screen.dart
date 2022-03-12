@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_string_encryption/flutter_string_encryption.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/auth_form.dart';
 import 'dart:math' as math;
@@ -14,6 +16,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
+  var prefs;
   final List<Variable> defaultVariables = [
     Variable("Water", "Cups", 8, 0, "#05b1d8"),
     Variable("Coffee", "Cups", 4, 0, "#613204"),
@@ -36,13 +39,20 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         authResult = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
-
+        final cryptor = new PlatformStringCryptor();
+        final key = await cryptor.generateRandomKey();
+        debugPrint("Auth Key: $key");
+        SharedPreferences.getInstance().then((value) {
+          prefs = value;
+          prefs.setString('key', key);
+        });
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user?.uid)
             .set({
               'username': username,
-              'email': email
+              'email': email,
+              'track': false
             });
         
         for (int i = 0;i < 5; i++) {

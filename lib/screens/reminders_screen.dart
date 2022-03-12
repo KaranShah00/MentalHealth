@@ -301,6 +301,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
                         .doc(rem.docId)
                         .delete();
                     await AwesomeNotifications().cancelSchedule(rem.id);
+                    ScaffoldMessenger.of(context).removeCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Reminder deleted'),

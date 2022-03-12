@@ -1,8 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter_string_encryption/flutter_string_encryption.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({ Key? key }) : super(key: key);
@@ -19,6 +27,32 @@ class _JournalScreenState extends State<JournalScreen> {
   DateTime _whichDate = DateTime.now();
   final dateController = TextEditingController();
   bool saved = true;
+  String entext = 'Encrypted Text';
+  String dectext = 'Decrypted Text';
+  var key;
+  var prefs;
+  bool _isLoading = true;
+  String value = "";
+
+  void encrypt() async {
+    final cryptor = new PlatformStringCryptor();
+    final encrypted = await cryptor.encrypt(_journalController.text, key);
+    setState(() {
+      entext = encrypted;
+    });
+  }
+  Future<String>  decrypt() async {
+    final cryptor = new PlatformStringCryptor();
+    String decrypted = "";
+    try {
+      decrypted = await cryptor.decrypt(entext, key);
+    }
+    on MacMismatchException catch(e) {
+      debugPrint("An error occurred in decryption");
+    }
+    return decrypted;
+  }
+
 
   saveJournalEntry(BuildContext context) {
     // print("Date: " + _whichDate.toString());
@@ -28,24 +62,59 @@ class _JournalScreenState extends State<JournalScreen> {
       //   instance.reference.set({'date': DateFormat("yyyy-MM-dd").format(DateTime.now()), 'entry': _journalController.text.toString()});
       // }
       if(data.docs.length == 0) {
-        firestore.collection('users').doc(user?.uid).collection('journal').doc().set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': _journalController.text.toString()});
+        firestore.collection('users').doc(user?.uid).collection('journal').doc().set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': entext});
         print("New entry");
       }
       else {
-        data.docs[0].reference.set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': _journalController.text.toString()});
+        data.docs[0].reference.set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': entext});
       }
     });
+
   }
 
   @override
   void initState() {
     user = auth.currentUser;
     super.initState();
-    var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
-    currentDoc.get().then((data) {
-      _journalController.text = data.docs.isEmpty? '' : data.docs[0]['entry'];
-    });
-    // print("Init run");
+    SharedPreferences.getInstance().then((value) {
+      prefs = value;
+      key = prefs.getString('key');
+      if(key == null) {
+        final cryptor = new PlatformStringCryptor();
+        cryptor.generateRandomKey().then((value) {
+          key = value;
+          prefs.setString('key', key);
+          debugPrint("Key: $key");
+          var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
+          currentDoc.get().then((data) {
+            if(data.docs.length != 0) {
+              debugPrint("In if");
+              entext = data.docs[0]['entry'];
+              decrypt().then((value) => _journalController.text = value);
+            }
+            debugPrint("Not in if");
+            setState(() {
+              _isLoading = false;
+            });
+          });
+        });
+        }
+      else{
+        debugPrint("Key: $key");
+        var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
+        currentDoc.get().then((data) {
+          if(data.docs.length != 0) {
+            debugPrint("In if");
+            entext = data.docs[0]['entry'];
+            decrypt().then((value) => _journalController.text = value);
+          }
+          debugPrint("Not in if");
+          setState(() {
+            _isLoading = false;
+          });
+        });
+      }
+      });
   }
 
   void changeEntryDate() {
@@ -56,15 +125,58 @@ class _JournalScreenState extends State<JournalScreen> {
           _journalController.text = "";
         }
         else {
-          _journalController.text = data.docs[0]['entry'];
+          entext = data.docs[0]['entry'];
+          decrypt().then((value) => _journalController.text = value);
         }
       });
     });
   }
 
+  uploadText() async {
+    if(_journalController.text != "") {
+      var response = await http.post(Uri.parse('http://192.168.29.12:5000/text'),
+        body: {"message": _journalController.text});
+      var result = response.body;
+      var emotions = jsonDecode(result);
+      debugPrint(response.body);
+      var angry = emotions['Angry'];
+      var fear = emotions['Fear'];
+      var happy = emotions['Happy'];
+      var sad = emotions['Sad'];
+      var surprise = emotions['Surprise'];
+      if (angry + fear + happy + sad + surprise == 0) {
+        value = " Sorry, the given text could not be analysed";
+      }
+      else {
+        var max = 0.0;
+        if(angry > max) {
+          value = "Angry: $angry";
+          max = angry;
+        }
+        if(fear > max) {
+          value = "Fear: $fear";
+          max = fear;
+        }
+        if(happy > max) {
+          value = "Happy: $happy";
+          max = happy;
+        }
+        if(sad > max) {
+          value = "Sad: $sad";
+          max = sad;
+        }
+        if(surprise > max) {
+          value = "Surprise: $surprise";
+          max = surprise;
+        }
+      }
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey.shade500,
@@ -72,15 +184,15 @@ class _JournalScreenState extends State<JournalScreen> {
         actions: [
           TextButton(
               child: Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                ),
+                Icons.logout,
+                color: Colors.white,
+              ),
               onPressed: () {
                 FirebaseAuth.instance.signOut();
               }),
         ],
       ),
-      body: Padding(
+      body: _isLoading ? const Center(child: CircularProgressIndicator(),) : Padding(
         padding: const EdgeInsets.only(top: 20.0, left: 15, right: 15, bottom: 20),
         child: Container(
           child: SafeArea(
@@ -102,7 +214,7 @@ class _JournalScreenState extends State<JournalScreen> {
                       icon: Icon(Icons.calendar_today,),
                       onPressed: () async {
                         var date =  await showDatePicker(
-                          context: context, 
+                          context: context,
                           initialDate:_whichDate,
                           firstDate:DateTime(1900),
                           lastDate: DateTime.now(),
@@ -122,17 +234,18 @@ class _JournalScreenState extends State<JournalScreen> {
                     controller: _journalController,
                     maxLines: 30,
                     keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: "What's on your mind?",
                       border: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey.shade400
+                            color: Colors.grey.shade400
                         ),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey.shade400
+                            color: Colors.grey.shade400
                         ),
                         borderRadius: BorderRadius.circular(5),
                       ),
@@ -149,13 +262,23 @@ class _JournalScreenState extends State<JournalScreen> {
                   ),
                 ),
                 Row(
+                  children: [
+                    ElevatedButton(
+                      child: Text('Analyse'),
+                      onPressed: uploadText,
+                    ),
+                    Text(value),
+                  ],
+                ),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     FloatingActionButton(
                       child: Icon(
-                        Icons.save
+                          Icons.save
                       ),
                       onPressed: saved ? null : () {
+                        encrypt();
                         saveJournalEntry(context);
                         setState(() {
                           saved = true;
