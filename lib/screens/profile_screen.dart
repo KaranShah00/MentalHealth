@@ -16,7 +16,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
   late String name = "";
-  bool trackDataValue = true;
+  bool trackDataValue = false;
+  bool _isLoading = true;
+  var data;
+
   // static const List<Color> lineColor = [
   //   Color(0xffffffff),
   // ];
@@ -26,14 +29,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     user = auth.currentUser;
     super.initState();
     // print(user);
-    var data = firestore.collection('users').doc(user?.uid);
+    data = firestore.collection('users').doc(user?.uid);
     data.get().then((value) {
       setState(() {
         name = value.data()!['username'];
+        trackDataValue = value.data()!['track'];
+        _isLoading = false;
       });
     });
   }
-  void toggleSwitch(bool value) {
+
+  void toggleSwitch(bool value) async{
+    await data.update({'track': !trackDataValue});
     setState(() {
       trackDataValue = !trackDataValue;
     });
@@ -41,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return _isLoading ? const Center(child: CircularProgressIndicator(),) : Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -118,18 +125,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         "Personal Information",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                       IconButton(
-                        onPressed: null,
-                        icon: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        )
-                      ),
+                          onPressed: null,
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          )),
                     ],
                   ),
                   SizedBox(
@@ -141,39 +146,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         "My Journal",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                       IconButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (context) {
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
                                 return JournalScreen();
-                              }
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        )
-                      ),
+                              }),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          )),
                     ],
                   ),
-                  SizedBox(height: 70,),
+                  SizedBox(
+                    height: 70,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
                         "Settings",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold
-                        ),
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold),
                       )
                     ],
                   ),
@@ -184,10 +187,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         "Track My Data",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                       Switch(
                         value: trackDataValue,
@@ -204,10 +206,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         "App Themes",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                       // DropdownButton<String>(
                       //   // value: value,
@@ -236,7 +237,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             default:
                           }
                         },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
                           const PopupMenuItem<String>(
                             value: 'Dark',
                             child: Text('Dark'),
@@ -267,18 +269,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         "Delete Account",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                       IconButton(
-                        onPressed: null,
-                        icon: Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        )
-                      ),
+                          onPressed: null,
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          )),
                     ],
                   ),
                 ],
