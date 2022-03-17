@@ -33,6 +33,7 @@ class _JournalScreenState extends State<JournalScreen> {
   var prefs;
   bool _isLoading = true;
   String value = "";
+  String link = "";
 
   void encrypt() async {
     final cryptor = new PlatformStringCryptor();
@@ -134,7 +135,7 @@ class _JournalScreenState extends State<JournalScreen> {
 
   uploadText() async {
     if(_journalController.text != "") {
-      var response = await http.post(Uri.parse('http://192.168.29.12:5000/text'),
+      var response = await http.post(Uri.parse('http://192.168.29.157:5000/text'),
         body: {"message": _journalController.text});
       var result = response.body;
       var emotions = jsonDecode(result);
@@ -150,23 +151,33 @@ class _JournalScreenState extends State<JournalScreen> {
       else {
         var max = 0.0;
         if(angry > max) {
-          value = "Angry: $angry";
+          // value = "Angry: $angry";
+          value = "You seem angry.";
+          link = "Would you like to calm your nerves?";
           max = angry;
         }
         if(fear > max) {
-          value = "Fear: $fear";
+          // value = "Fear: $fear";
+          value = "Are you afraid of something?";
+          link = "Try engaging in some meditation.";
           max = fear;
         }
         if(happy > max) {
-          value = "Happy: $happy";
+          // value = "Happy: $happy";
+          value = "Looks like you're happy.";
+          link = "Care to listen to some upbeat music?";
           max = happy;
         }
         if(sad > max) {
-          value = "Sad: $sad";
+          // value = "Sad: $sad";
+          value = "Something has got you down.";
+          link = "Do you want to try some uplifting techniques?";
           max = sad;
         }
         if(surprise > max) {
-          value = "Surprise: $surprise";
+          // value = "Surprise: $surprise";
+          value = "You seem surprised.";
+          link = "Want to get balanced?";
           max = surprise;
         }
       }
@@ -261,14 +272,26 @@ class _JournalScreenState extends State<JournalScreen> {
                     },
                   ),
                 ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      child: Text('Analyse'),
-                      onPressed: uploadText,
-                    ),
-                    Text(value),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ElevatedButton(
+                      //   child: Text('Analyse'),
+                      //   onPressed: uploadText,
+                      // ),
+                      Text(value),
+                      GestureDetector(
+                        child: Text(
+                          link,
+                          style: TextStyle(
+                              color: Colors.blue, decoration: TextDecoration.underline),
+                        ),
+                        onTap: null
+                      ),
+                    ],
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -278,6 +301,7 @@ class _JournalScreenState extends State<JournalScreen> {
                           Icons.save
                       ),
                       onPressed: saved ? null : () {
+                        uploadText();
                         encrypt();
                         saveJournalEntry(context);
                         setState(() {

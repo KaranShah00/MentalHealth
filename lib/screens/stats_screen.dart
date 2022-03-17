@@ -125,20 +125,22 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       }
     });
     return returnData;
-    // switch (currentVariable) {
-    //   case "Water":
-    //     return spotsWater;
-    //   case "Coffee":
-    //     return spotsCoffee;
-    //   case "Exercise":
-    //     return spotsExercise;
-    //   case "Meditation":
-    //     return spotsMeditation;
-    //   case "Rest":
-    //     return spotsRest;
-    // }
-    // return spotsWater;
   }
+  // Future<int> _getMonthlyAchievedData() async {
+  //   int sum = 0;
+  //   var data = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date');
+  //   await data.get().then((data){
+  //     // print(data.docs.length);
+  //     for(var instance in data.docs) {
+  //       var d = instance.data();
+  //       sum += (d['achieved']);
+  //       // print("This is what is returned:\n");
+  //       // print(returnData[0].date);
+  //       // print(d['date'].toDate());
+  //     }
+  //   });
+  //   return sum;
+  // }
 
   @override
   void initState() {
@@ -684,7 +686,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(50),
                                           child: LinearProgressIndicator(
-                                            value: docs[index]['achieved']/docs[index]['target'],
+                                            value: docs[index]['achieved']/(docs[index]['target']*30),
                                             minHeight: 10,
                                             backgroundColor: Colors.grey.shade100,
                                             color: Color(getColor(docs[index]['color'])),
@@ -696,7 +698,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.only(right: 15),
-                                            child: Text(docs[index]['achieved'].toString() + "/" + docs[index]['target'].toString()),
+                                            child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*30).toString()),
                                           )
                                         ],
                                       )
@@ -806,7 +808,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(50),
                                           child: LinearProgressIndicator(
-                                            value: docs[index]['achieved']/docs[index]['target'],
+                                            value: docs[index]['achieved']/(docs[index]['target']*365),
                                             minHeight: 10,
                                             backgroundColor: Colors.grey.shade100,
                                             color: Color(getColor(docs[index]['color'])),
@@ -818,7 +820,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.only(right: 15),
-                                            child: Text(docs[index]['achieved'].toString() + "/" + docs[index]['target'].toString()),
+                                            child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*365).toString()),
                                           )
                                         ],
                                       )
