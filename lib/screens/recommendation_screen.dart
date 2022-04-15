@@ -2,7 +2,10 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../model/myaudio.dart';
 import 'package:mental_health/screens/exercise_screen.dart';
 import 'package:mental_health/screens/facial_detection_screen.dart';
 import 'package:mental_health/screens/profile_screen.dart';
@@ -15,124 +18,23 @@ import './depression_questionnaire_screen.dart';
 import './journal_screen.dart';
 import './questionnaire_screen.dart';
 
-class MyNavigationBar extends StatefulWidget {
-  MyNavigationBar({Key? key}) : super(key: key);
+class RecommendationScreen extends StatefulWidget {
+  final String mood;
+  const RecommendationScreen(this.mood, {Key? key}) : super(key: key);
 
   @override
-  _MyNavigationBarState createState() => _MyNavigationBarState();
+  State<RecommendationScreen> createState() => _RecommendationScreenState();
 }
 
-class _MyNavigationBarState extends State<MyNavigationBar> {
-  // final AuthService _auth = AuthService();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  int focusedPage = 2;
-  int previousPage = 2;
-  static List<Widget> _widgetOptions = <Widget>[
-    HelpScreen(),
-    RemindersScreen(),
-    HomeScreen(),
-    StatsScreen(),
-    ProfileScreen(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      previousPage = focusedPage;
-      focusedPage = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageTransitionSwitcher(
-        reverse: previousPage > focusedPage,
-        transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
-            SharedAxisTransition(
-              animation: primaryAnimation,
-              secondaryAnimation: secondaryAnimation,
-              transitionType: SharedAxisTransitionType.horizontal,
-              child: child,
-            ),
-        child: _widgetOptions.elementAt(focusedPage),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            blurRadius: 10,
-            offset: Offset(0, -3),
-          )
-        ]),
-        child: BottomNavigationBar(
-          elevation: 10,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.help,
-              ),
-              label: 'Help',
-              backgroundColor: Color(0xff8000ff),
-              // backgroundColor: Colors.grey,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.schedule,
-              ),
-              label: 'Reminders',
-              backgroundColor: Colors.pinkAccent,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-              ),
-              label: 'Home',
-              backgroundColor: Color(0xff81dc17),
-              // backgroundColor: Colors.grey,
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                // Icons.graphic_eq_rounded,
-                Icons.timeline,
-              ),
-              label: 'Stats',
-              backgroundColor: Color(0xffffba00),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.account_circle,
-              ),
-              label: 'Profile',
-              backgroundColor: Color(0xff1d517c),
-            ),
-          ],
-          currentIndex: focusedPage,
-          iconSize: 20,
-          onTap: _onItemTapped,
-        ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class _RecommendationScreenState extends State<RecommendationScreen> {
   var data;
   bool trackDataValue = false;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
+  FirebaseStorage? storage;
+  Reference? ref;
+  var _isLoading = false;
 
   Map<String, List<Color>> color = {
     'red': [Color.fromARGB(255, 255, 111, 0),Color.fromARGB(255, 220, 23, 23),],
@@ -146,6 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
     user = auth.currentUser;
     super.initState();
     data = firestore.collection('users').doc(user?.uid);
+    storage = FirebaseStorage.instance;
+    ref = storage!.ref('/${widget.mood}');
     data.get().then((value) {
       setState(() {
         // name = value.data()!['username'];
@@ -156,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    print(widget.mood);
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: Color(0xff81dc17),
@@ -184,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: _isLoading ? Center(child: CircularProgressIndicator(),) : Column(
         children: [
           Container(
             padding: EdgeInsets.all(10),
@@ -216,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hi Harsh".toUpperCase(),
+                    "Ready to be happy?".toUpperCase(),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 3,
@@ -225,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   Text(
-                    "How are we feeling today?".toUpperCase(),
+                    "We've got some great recommendations for you",
                     style: TextStyle(
                       fontWeight: FontWeight.w300,
                       // letterSpacing: 3,
@@ -243,49 +148,92 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  child: card("Depression Checker", color['blue']),
-                  onTap:() => Navigator.push(
+                  child: card("Music", color['blue']),
+                  onTap:() async{
+                    if(!_isLoading) {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    }
+                    ListResult result = await ref!.listAll();
+                    List<Map<String, String>> data = [];
+                    for (Reference r in result.items) {
+                      data.add({
+                        'url': await r.getDownloadURL(),
+                        'name': r.name,
+                        'image':
+                            'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
+                      });
+                    }
+                    Provider.of<MyAudio>(context, listen: false).addData(data);
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return DepressionQuestionnaireScreen();
+                      return MusicScreen();
                     }),
-                  )
+                  );
+                  }
                 ),
                 GestureDetector(
-                  child: card("Mood Checker", color['green']),
-                  onTap:() => Navigator.push(
+                  child: card("Meditation", color['green']),
+                  onTap:() async{
+                    if(!_isLoading) {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    }
+                    ref = storage!.ref('/meditation');
+                    ListResult result = await ref!.listAll();
+                    debugPrint("l: ${result.items.length}");
+                    List<Map<String, String>> data = [];
+                    for (Reference r in result.items) {
+                      data.add({
+                        'url': await r.getDownloadURL(),
+                        'name': r.name,
+                        'image':
+                            'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
+                      });
+                    }
+                    Provider.of<MyAudio>(context, listen: false).addData(data);
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return QuestionnaireScreen();
+                      return MusicScreen();
                     }),
-                  )
-                ),
+                  );
+                  }),
               ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
-                  child: card("My Journal", color['red']),
+                  child: card("Exercises", color['red']),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return JournalScreen(trackDataValue);
+                      return ExerciseScreen(widget.mood);
                     }),
                   )
                 ),
-                GestureDetector(
-                  child: card("Facial Detection", color['yellow']),
-                  onTap:() => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) {
-                      return FacialDetectionScreen();
-                    }),
-                  )
-                ),
+                // GestureDetector(
+                //   child: card("Facial Detection", color['yellow']),
+                //   onTap:() => Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (context) {
+                //       return FacialDetectionScreen();
+                //     }),
+                //   )
+                // ),
               ],
             ),
           ),

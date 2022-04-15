@@ -171,8 +171,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           decoration: new BoxDecoration(
             gradient: const LinearGradient(
                 colors: [
-                  const Color(0xffffd93b),
-                  const Color(0xffffba00),
+                  Color.fromARGB(255, 255, 217, 59),
+                  Color.fromARGB(255, 255, 186, 0),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,

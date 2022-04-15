@@ -17,7 +17,8 @@ import '../widgets/notification_utils.dart';
 import '../widgets/new_reminder.dart';
 
 class ExerciseScreen extends StatefulWidget {
-  const ExerciseScreen({Key? key}) : super(key: key);
+  final String mood;
+  const ExerciseScreen(this.mood, {Key? key}) : super(key: key);
 
   @override
   State<ExerciseScreen> createState() => _ExerciseScreenState();
@@ -37,7 +38,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
   var _isLoading = true;
   var random = new Random();
   int exercise_number = 0;
-  String mood = 'angry';
+  var mood;
   Timer? timer;
   late TabController _tabController;
 
@@ -108,6 +109,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    mood = widget.mood;
     _tabController = TabController(vsync: this, length: 2);
   }
   @override

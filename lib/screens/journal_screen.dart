@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mental_health/screens/recommendation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -35,6 +36,7 @@ class _JournalScreenState extends State<JournalScreen> {
   bool _isLoading = true;
   String value = "";
   String link = "";
+  var mood = "";
 
   void encrypt() async {
     final cryptor = new PlatformStringCryptor();
@@ -145,8 +147,8 @@ class _JournalScreenState extends State<JournalScreen> {
       var fear = emotions['Fear'];
       var happy = emotions['Happy'];
       var sad = emotions['Sad'];
-      var surprise = emotions['Surprise'];
-      if (angry + fear + happy + sad + surprise == 0) {
+      // var surprise = emotions['Surprise'];
+      if (angry + fear + happy + sad == 0) {
         value = " Sorry, the given text could not be analysed";
       }
       else {
@@ -156,31 +158,35 @@ class _JournalScreenState extends State<JournalScreen> {
           value = "You seem angry.";
           link = "Would you like to calm your nerves?";
           max = angry;
+          mood = "angry";
         }
         if(fear > max) {
           // value = "Fear: $fear";
           value = "Are you afraid of something?";
           link = "Try engaging in some meditation.";
           max = fear;
+          mood = "fear";
         }
         if(happy > max) {
           // value = "Happy: $happy";
           value = "Looks like you're happy.";
           link = "Care to listen to some upbeat music?";
           max = happy;
+          mood = "happy";
         }
         if(sad > max) {
           // value = "Sad: $sad";
           value = "Something has got you down.";
           link = "Do you want to try some uplifting techniques?";
           max = sad;
+          mood = "sad";
         }
-        if(surprise > max) {
-          // value = "Surprise: $surprise";
-          value = "You seem surprised.";
-          link = "Want to get balanced?";
-          max = surprise;
-        }
+        // if(surprise > max) {
+        //   // value = "Surprise: $surprise";
+        //   value = "You seem surprised.";
+        //   link = "Want to get balanced?";
+        //   max = surprise;
+        // }
       }
       setState(() {});
     }
@@ -289,7 +295,14 @@ class _JournalScreenState extends State<JournalScreen> {
                           style: TextStyle(
                               color: Colors.blue, decoration: TextDecoration.underline),
                         ) : Container(),
-                        onTap: null
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
+                                return RecommendationScreen(mood);
+                              }),
+                            );
+                        }
                       ),
                     ],
                   ),

@@ -156,6 +156,14 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                     debugPrint("c: " + counts.toString());
                     debugPrint("t: " + total.toString());
                     debugPrint("e: " + emotions.toString());
+                    var mood;
+                    double score = 0;
+                    emotions.forEach((key, value) {
+                      if(value > score) {
+                        score = value;
+                        mood = key.toLowerCase();
+                      }
+                    });
                   } , child: const Text('Save Responses')),
                 ),
               ],

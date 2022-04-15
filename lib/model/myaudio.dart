@@ -11,22 +11,7 @@ class MyAudio extends ChangeNotifier{
     initAudio();
   }
 
-  List<Map<String, String>> audioData = [{
-    'image': 'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
-    'url': 'https://thegrowingdeveloper.org/files/audios/quiet-time.mp3?b4869097e4',
-    'name': 'Quiet time'
-  },
-    {
-      'image': 'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-      'name': 'SoundHelix-Song-1'
-    },
-    {
-      'image': 'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-      'name': 'SoundHelix-Song-4'
-    },
-  ];
+  List<Map<String, String>> audioData = [];
 
   List<Map<String, String>> getData() {
     return [...audioData];
@@ -34,6 +19,11 @@ class MyAudio extends ChangeNotifier{
 
   int getIndex() {
     return index;
+  }
+
+  void clearList() {
+    audioPlayer.stop();
+    audioData.clear();
   }
 
   int index = 0;
