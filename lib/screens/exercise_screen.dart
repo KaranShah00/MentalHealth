@@ -218,7 +218,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
                   GlowingOverscrollColorChanger(
                     color: Colors.lightGreen,
                     child: Scrollbar(
-                      isAlwaysShown: true,
+                      //isAlwaysShown: true,
                       child: ListView(
                         children: List.generate(exercises[mood]![exercise_number].procedure.length, (index) {
                           return Padding(
@@ -238,7 +238,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
                   GlowingOverscrollColorChanger(
                     color: Colors.lightGreen,
                     child: Scrollbar(
-                      isAlwaysShown: true,
+                      //isAlwaysShown: true,
                       child: ListView(
                         children: List.generate(exercises[mood]![exercise_number].benefits.length, (index) {
                           return Text(
@@ -271,6 +271,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FloatingActionButton(
+                  heroTag: 1,
                   // foregroundColor: Colors.lightGreen,
                   backgroundColor: Colors.lightGreen,
                   onPressed: getNewMood,
@@ -285,6 +286,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProvid
                 // ),
                 buildButtons(),
                 FloatingActionButton(
+                  heroTag: 2,
                   // foregroundColor: Colors.lightGreen,
                   backgroundColor: Colors.lightGreen,
                   onPressed: getNewExercise,
@@ -417,23 +419,37 @@ Map<String, List<Exercise>> exercises = {
   'angry': angry,
   'happy': happy,
   'sad': sad,
-  'neutral': neutral,
+  'fear': fear,
 };
 
 List<Exercise> angry = [
   Exercise(
-    "Angry Anulom Vilom",
+    "Deep Breathing",
     ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0', 'https://th.bing.com/th/id/R.4d7c6ac19f89354580f0c2216b3c9079?rik=okNBll9SG31A7A&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fyoga-breathing-png-anulom-vilom-pranayama-yoga-alternate-nostril-breathing-benefits-steps-7pranayama-330.png&ehk=ZuylSqomhzqNdwB5OBr7ZLMM9JuSF9TD%2bBAxxSEpjaA%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
+    ["Sit in a comfortable position.", "Place one hand on your stomach, close your eyes and inhale focusing on the air entering your lungs.", "Pause a second before exhaling slowly.", "Focus on breathing, clear your thoughts and calm the muscles"],
     ["Angry Benefits"],
     60
   ),
   Exercise(
-    "Angry Kapalbhati",
+      "Anulom Vilom",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
+      ["Happy Benefits"],
+      60
+  ),
+  Exercise(
+    "Kapalbhati",
     ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
-    ["Angry Benefits"],
+    ["Sit in any meditative posture.", "Close the eyes and relax the whole body.", "Inhale deeply through both nostrils, expand the chest.", "Expel the breath with forceful contractions of the abdominal muscles and relax.", "Continue active exhalation and passive inhalation."],
+    ["Kapalabhati purifies the frontal air sinuses; helps to overcome cough disorders.", "It balances and strengthens the nervous system and tones up the digestive system."],
     60
+  ),
+  Exercise(
+      "Progressive Relaxation",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Lie down while consciously tensing and relaxing your muscles one major muscle group at a time.", "Close your eyes and start with your toes tensing them for a few seconds and then relaxing the muscles.", "Breathe and focus on your body."],
+      ["This type of relaxation exercise relieves stress, anger and tension."],
+      60
   ),
 ];
 
@@ -455,33 +471,61 @@ List<Exercise> happy = [
 ];
 List<Exercise> sad = [
   Exercise(
-    "Sad Anulom Vilom",
+    "Child's Pose",
     ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
-    ["Sad Benefits"],
+    ["Come to your hands and knees on the mat.", "Spread your knees as wide as your mat, keeping the tops of your feet on the floor with the big toes touching.", "Bring your belly to rest between your thighs and root your forehead to the floor.", "Stretch your arms in front of you with the palms toward the floor or bring your arms back alongside your thighs with the palms facing upwards."],
+    ["It can help relieve back pain.", "Child's Pose is also a gentle stretch for the hips, thighs, and ankles."],
     60
   ),
   Exercise(
-    "Sad Kapalbhati",
+    "Bridge Pose",
     ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
-    ["Sad Benefits"],
+    ["Tuck your shoulders under your body then lift your hips to allow your chest to blossom.", "Draw your shoulders under before lifting your hips"],
+    ["It creates better posture.", "Constructs a sense of confidence in your mind."],
     60
+  ),
+  Exercise(
+      "Corpse Pose",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Lie down on your back.", "Separate your legs. Let go of holding your legs straight so that your feet can fall open to either side.", "Bring your arms alongside your body, but slightly separated from your torso.", "Turn your palms to face upwards but don't try to keep them open. Let the fingers curl in.", "Relax your whole body, including your face. Let your body feel heavy."],
+      ["Sad Benefits"],
+      300
+  ),
+  Exercise(
+      "Heel to Toe Walk",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Stretch your arms out from your sides to help maintain balance.", "Keep your chin up and parallel to the ground, looking forward.", "As you take a step, place the heel of your foot just in front of the toe of your other foot.", "Walk a straight line in this heel-to-toe fashion. It will feel as if your body is swaying from side to side.", "Take 10 to 20 steps heel-to-toe."],
+      ["Sad Benefits"],
+      120
   ),
 ];
-List<Exercise> neutral = [
+List<Exercise> fear = [
   Exercise(
-    "Neutral Anulom Vilom",
+      "Skipping Rope",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Hold the rope while keeping your hands at hip level.", "Rotate your wrists to swing the rope and jump.", "Jump with both feet at the same time, one foot at a time, alternating between feet."],
+      ["This aerobic exercise gets your heart pumping, reduces anxiety and blood pressure.", "Jumping rope can also improve speed, coordination, agility, and balance."],
+      60
+  ),
+  Exercise(
+    "Cat-Cow",
     ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
+    ["Start on all fours with your shoulders over your wrists and hips over knees.", "Take a slow inhale, and on the exhale round your spine and drop your head toward the floor (this is the Cat posture).", "Inhale and lift your head, chest, and tailbone toward the ceiling as you arch your back for Cow.", "You should feel a stretch in your spine and possibly your glutes and shoulders as well."],
     ["Neutral Benefits"],
     60
   ),
   Exercise(
-    "Neutral Kapalbhati",
-    ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
-    ["Sit in a comfortable position with your mind and body relaxed.","Close the right nostril with your right thumb and take a deep breath through your left nostril.","Now, remove the thumb from the right nostril and close your left nostril using your ring or little finger.","Exhale slowly through your right nostril.","Repeat, this time inhaling through your left nostril and exhaling through your right.","Continue for one minute."],
-    ["Neutral Benefits"],
-    60
+      "Downward Facing Dog",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Start on your hands and knees with your hands stacked under your shoulders and knees under your hips.", "Spread your hands wide and press your index finger and thumb into your mat.", "Lift your tailbone and press your butt up and back, drawing your hips toward the ceiling.", "Straighten your legs as best as you can and press your heels gently toward the floor.", "Your head should be relaxed between your arms, facing your knees; your shoulders should be pulled back and down; and your back should be flat."],
+      ["Neutral Benefits"],
+      60
+  ),
+  Exercise(
+      "Forward Fold",
+      ['https://th.bing.com/th/id/R.3d3e4d81fe70390adfe87aff388b8e8f?rik=DUQJLUHSsaLTwg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fjcx%2fa5x%2fjcxa5xeki.png&ehk=jNCjApktl8XfQipLdTtRofphSseVRm%2fGo1ZiPhWfrDI%3d&risl=&pid=ImgRaw&r=0'],
+      ["Stand with your feet shoulder-width apart.", "Straighten your legs out as much as you can without locking your knees and let your torso hang down.", "Tuck your chin in toward your chest, relax your shoulders, and extend the crown of your head toward the floor to create a long spine.", "Depending on your flexibility, your hands will touch the floor or dangle above floor level.", "You can hold onto each elbow with the opposite arm or let your arms hang separately."],
+      ["Neutral Benefits"],
+      60
   ),
 ];
