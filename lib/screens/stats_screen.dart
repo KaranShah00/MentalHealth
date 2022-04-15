@@ -61,7 +61,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
   List<Data> spotsCoffee = List<Data>.generate(365, (i) =>
@@ -70,7 +70,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
   List<Data> spotsExercise = List<Data>.generate(365, (i) =>
@@ -79,7 +79,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
   List<Data> spotsMeditation = List<Data>.generate(365, (i) =>
@@ -88,7 +88,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
   List<Data> spotsRest = List<Data>.generate(365, (i) =>
@@ -97,7 +97,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
   List<Data> spotsMood = List<Data>.generate(365, (i) =>
@@ -106,19 +106,20 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20))
+      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
     )
   );
 
   Future<List<Data>> _getData() async {
     List<Data> returnData = [];
-    var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date');
+    var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date',descending: true);
+    // int currentTarget = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['target']) as int;
     // var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').get();
     await singularData.get().then((data){
       // print(data.docs.length);
       for(var instance in data.docs) {
         var d = instance.data();
-        returnData.add(Data(d['date'].toDate(), d['score']));
+        returnData.add(Data(d['date'].toDate(), d['score'], 0));
         // print("This is what is returned:\n");
         // print(returnData[0].date);
         // print(d['date'].toDate());
@@ -257,23 +258,44 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                         )
                       ],
                     ),
-                    FutureBuilder<Object>(
-                      future: _getData(),
-                      builder: (context, snapshot) {
+                    StreamBuilder(
+                      // future: _getData(),
+                      stream: firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').snapshots(),
+                      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                         // print("Data is:");
                         // print(_getData());
                         if(!snapshot.hasData) {
                           return const Text('Loading...');
                         }
-                        Object? finalData = snapshot.data;
-                        List<FlSpot> data = [];
-                        if(finalData is List<Data>) {
-                        // print("Final Data is:");
-                        //   print(finalData[0]);
-                          data = finalData.asMap().entries.map((e) {
-                            return FlSpot(e.key.toDouble(), e.value.score.toDouble());
+                        List finalData = snapshot.data.docs;
+                        // List<FlSpot> data = [];
+                        // // if(finalData is List<Data>) {
+                        // //   print("Final data is List");
+                        // // print("Final Data is:");
+                        // //   print(finalData[0]);
+                        //   data = finalData.asMap().entries.map((e) {
+                        //     // print("Getting E as " + e.value.data()['score'].toString());
+                        //     return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
+                        //   }).toList();
+                          List<FlSpot> dataWeek = [];
+                          dataWeek = finalData.sublist(math.max(0,finalData.length - 7), finalData.length).asMap().entries.map((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            return FlSpot(e.key.toDouble() + math.max((7 - finalData.length), 0), e.value.data()['score'].toDouble());
                           }).toList();
-                        }
+
+                          List<FlSpot> dataMonth = [];
+                          dataMonth = finalData.sublist(math.max(0,finalData.length - 30), finalData.length).asMap().entries.map((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
+                          }).toList();
+
+                          List<FlSpot> dataYear = [];
+                          dataYear = finalData.sublist(math.max(0,finalData.length - 12), finalData.length).asMap().entries.map((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
+                          }).toList();
+                          // print(data.sublist(0,7).reversed.toList());
+                        // }
                         return Expanded(
                           child: TabBarView (
                             controller: _tabController,
@@ -283,7 +305,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                   minX: 0,
                                   maxX: 7,
                                   minY: 0,
-                                  maxY: 20,
+                                  maxY: 25,
                                   titlesData: LineTilesWeek.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -298,7 +320,8 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       //   // print(e.key.toDouble().toString() + e.value.score.toDouble().toString());
                                       //   return FlSpot(e.key.toDouble(), e.value.score.toDouble());
                                       // }).toList(),
-                                      spots: data.sublist(0,math.min(7, data.length)),
+                                      spots: dataWeek,
+                                      // spots: data.sublist(math.max(0, data.length), data.length),
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -307,7 +330,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       isStrokeCapRound: true,
                                       barWidth: 5,
                                       colors: [Color(getColor(_variable['color'])),],
-                                      dotData: FlDotData(show: false),
+                                      dotData: FlDotData(show: false,),
                                     ),
                                     LineChartBarData(
                                       spots:  spotsMood.sublist(0,7).asMap().entries.map((e) {
@@ -333,7 +356,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                   minX: 0,
                                   maxX: 31,
                                   minY: 0,
-                                  maxY: 20,
+                                  maxY: 25,
                                   titlesData: LineTilesMonth.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -346,7 +369,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       // spots: data.sublist(0,31).asMap().entries.map((e) {
                                       //   return FlSpot(e.key.toDouble(), e.value.score.toDouble());
                                       // }).toList(),
-                                      spots: data.sublist(0,math.min(31, data.length)),
+                                      spots: dataMonth,
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -358,7 +381,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       dotData: FlDotData(show: false),
                                     ),
                                     LineChartBarData(
-                                      spots:  spotsMood.sublist(0,31).asMap().entries.map((e) {
+                                      spots:  spotsMood.sublist(0,30).asMap().entries.map((e) {
                                         return FlSpot(e.key.toDouble(), e.value.score.toDouble());
                                       }).toList(),
                                       shadow: const Shadow(
@@ -381,7 +404,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                   minX: 0,
                                   maxX: 12,
                                   minY: 0,
-                                  maxY: 20,
+                                  maxY: 25,
                                   titlesData: LineTilesYear.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -394,7 +417,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       // spots: data.sublist(0,12).asMap().entries.map((e) {
                                       //   return FlSpot(e.key.toDouble(), e.value.score.toDouble());
                                       // }).toList(),
-                                      spots: data.sublist(0,math.min(365, data.length)),
+                                      spots: dataYear,
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -505,380 +528,442 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               SizedBox(height: 10),
               Container(
                 child: Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
+                  child:
+                  // TabBarView(
+                    // controller: _tabController,
+                    // children: [
                       GlowingOverscrollColorChanger(
                         color: Colors.amber,
                         child: ListView(
                           children: docs.length == 0 ? [Text("Add variables")]: List.generate(docs.length, (index) {
+                          // var dataSnapshot = firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString());
+                          // int score, target;
+                          // dataSnapshot.get().then((data){
+                          //   score = data['score'];
+                          //   target = data['target'];
+                          //   // print(data['score']);
+                          // });
+                          // docs = snapshot.data.docs;
+                          // _variable = docs[variableIndex];
                             return 
-                            Container(
-                              height: 130,
-                              margin: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow:[ 
-                                  BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 5),
+                            StreamBuilder(
+                              stream: firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').snapshots(),
+                              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                                if (!snapshot.hasData) {
+                                  // print("Loading\n");
+                                  return const Text('Loading values...');
+                                }
+                                var data = snapshot.data.docs;
+                                data = data.sublist(data.length - 1, data.length);
+                                // print(data.last['score']);
+                                // _variable = docs[variableIndex];
+                                return Container(
+                                  height: 130,
+                                  margin: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow:[ 
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 5,
+                                          blurRadius: 7,
+                                          offset: Offset(0, 5),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Radio<QueryDocumentSnapshot>(
-                                      value: docs[index],
-                                      groupValue: _variable,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _variable = value!;
-                                          currentVariable = docs[index]['name'];
-                                          variableIndex = index;
-                                        });
-                                      },
-                                      activeColor: Color(getColor(docs[index]['color'])),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 7,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          children: [
-                                            Text(docs[index]['name']),
-                                            SizedBox(width: 120),
-                                            Text(docs[index]['unit']),
-                                          ],
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: Radio<QueryDocumentSnapshot>(
+                                          value: docs[index],
+                                          groupValue: _variable,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _variable = value!;
+                                              currentVariable = docs[index]['name'];
+                                              variableIndex = index;
+                                            });
+                                          },
+                                          activeColor: Color(getColor(docs[index]['color'])),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 15, right: 15),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(50),
-                                            child: LinearProgressIndicator(
-                                              value: docs[index]['achieved']/docs[index]['target'],
-                                              minHeight: 10,
-                                              backgroundColor: Colors.grey.shade100,
-                                              color: Color(getColor(docs[index]['color'])),
+                                      ),
+                                      Expanded(
+                                        flex: 7,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Text(docs[index]['name']),
+                                                SizedBox(width: 120),
+                                                Text(docs[index]['unit']),
+                                              ],
                                             ),
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
                                             Padding(
-                                              padding: const EdgeInsets.only(right: 15),
-                                              child: Text(docs[index]['achieved'].toString() + "/" + docs[index]['target'].toString()),
+                                              padding: const EdgeInsets.only(left: 15, right: 15),
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(50),
+                                                child: LinearProgressIndicator(
+                                                  // value: docs[index]['achieved']/docs[index]['target'],
+                                                  // value: data.last['score']/data.last['target'],
+                                                  value: DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score']/data.last['target'] : 0/data.last['target'],
+                                                  minHeight: 10,
+                                                  backgroundColor: Colors.grey.shade100,
+                                                  color: Color(getColor(docs[index]['color'])),
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right: 15),
+                                                  child: Text(DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score'].toString() + "/" + data.last['target'].toString() : "0/" + data.last['target'].toString()),
+                                                )
+                                              ],
                                             )
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          FloatingActionButton(
-                                            heroTag: null,
-                                            backgroundColor: Color(getColor(docs[index]['color'])),
-                                            foregroundColor: Colors.white,
-                                            child: Icon(Icons.add),
-                                            mini: true,
-                                            onPressed: () {
-                                              // firestore.runTransaction((transaction) async {
-                                              //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                              //   await transaction.update(freshSnap.reference, {
-                                              //     'achieved': freshSnap['achieved'] + 1,
-                                              //   });
-                                              // });
-                                              // QuerySnapshot docRef = ;
-                                              firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                            },
-                                          ),
-                                          FloatingActionButton(
-                                            heroTag: null,
-                                            backgroundColor: Color(getColor(docs[index]['color'])),
-                                            foregroundColor: Colors.white,
-                                            child: Icon(Icons.remove),
-                                            mini: true,
-                                            onPressed: () {
-                                              // firestore.runTransaction((transaction) async {
-                                              //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                              //   await transaction.update(freshSnap.reference, {
-                                              //     'achieved': freshSnap['achieved'] - 1,
-                                              //   });
-                                              // });
-                                              // QuerySnapshot docRef = ;
-                                              firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
-                                            },
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    )
+                                      Expanded(
+                                        flex: 2,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 8.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              FloatingActionButton(
+                                                heroTag: null,
+                                                backgroundColor: Color(getColor(docs[index]['color'])),
+                                                foregroundColor: Colors.white,
+                                                child: Icon(Icons.add),
+                                                mini: true,
+                                                onPressed: () {
+                                                  // print(DateFormat.EEEE());
+                                                  // firestore.runTransaction((transaction) async {
+                                                  //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                                                  //   await transaction.update(freshSnap.reference, {
+                                                  //     'achieved': freshSnap['achieved'] + 1,
+                                                  //   });
+                                                  // });
+                                                  // QuerySnapshot docRef = ;
+                                                  for(var i in data) {
+                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                      // print(i['date']);
+                                                      // print("Date found");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
+                                                      break;
+                                                    }
+                                                    else {
+                                                      // print("New document");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 1, 'target': data.last['target']});
+                                                    }
+                                                  }
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
+                                                },
+                                              ),
+                                              FloatingActionButton(
+                                                heroTag: null,
+                                                backgroundColor: Color(getColor(docs[index]['color'])),
+                                                foregroundColor: Colors.white,
+                                                child: Icon(Icons.remove),
+                                                mini: true,
+                                                onPressed: () {
+                                                  // firestore.runTransaction((transaction) async {
+                                                  //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                                                  //   await transaction.update(freshSnap.reference, {
+                                                  //     'achieved': freshSnap['achieved'] - 1,
+                                                  //   });
+                                                  // });
+                                                  // QuerySnapshot docRef = ;
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
+                                                  for(var i in data) {
+                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                      // print(i['date']);
+                                                      // print("Date found");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
+                                                      break;
+                                                    }
+                                                    else {
+                                                      // print("New document");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': data.last['target']});
+                                                    }
+                                                  }
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                );
+                              }
                             );
                           }),
                         ),
                       ),
-                      ListView(
-                        children: List.generate(docs.length, (index) {
-                          return 
-                          Container(
-                            height: 130,
-                            margin: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow:[ 
-                                BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Radio<QueryDocumentSnapshot>(
-                                    value: docs[index],
-                                    groupValue: _variable,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _variable = value!;
-                                        currentVariable = docs[index]['name'];
-                                        variableIndex = index;
-                                      });
-                                    },
-                                    activeColor: Color(getColor(docs[index]['color'])),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 7,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text(docs[index]['name']),
-                                          SizedBox(width: 120),
-                                          Text(docs[index]['unit']),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 15, right: 15),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(50),
-                                          child: LinearProgressIndicator(
-                                            value: docs[index]['achieved']/(docs[index]['target']*30),
-                                            minHeight: 10,
-                                            backgroundColor: Colors.grey.shade100,
-                                            color: Color(getColor(docs[index]['color'])),
-                                          ),
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 15),
-                                            child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*30).toString()),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        FloatingActionButton(
-                                          heroTag: null,
-                                          backgroundColor: Color(getColor(docs[index]['color'])),
-                                          foregroundColor: Colors.white,
-                                          child: Icon(Icons.add),
-                                          mini: true,
-                                          onPressed: () {
-                                            // firestore.runTransaction((transaction) async {
-                                            //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                            //   await transaction.update(freshSnap.reference, {
-                                            //     'achieved': freshSnap['achieved'] + 1,
-                                            //   });
-                                            // });
-                                            // QuerySnapshot docRef = ;
-                                            firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                          },
-                                        ),
-                                        FloatingActionButton(
-                                          heroTag: null,
-                                          backgroundColor: Color(getColor(docs[index]['color'])),
-                                          foregroundColor: Colors.white,
-                                          child: Icon(Icons.remove),
-                                          mini: true,
-                                          onPressed: () {
-                                            // firestore.runTransaction((transaction) async {
-                                            //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                            //   await transaction.update(freshSnap.reference, {
-                                            //     'achieved': freshSnap['achieved'] - 1,
-                                            //   });
-                                            // });
-                                            // QuerySnapshot docRef = ;
-                                            firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                      ListView(
-                        children: List.generate(docs.length, (index) {
-                          return 
-                          Container(
-                            height: 130,
-                            margin: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow:[ 
-                                BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Radio<QueryDocumentSnapshot>(
-                                    value: docs[index],
-                                    groupValue: _variable,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _variable = value!;
-                                        currentVariable = docs[index]['name'];
-                                        variableIndex = index;
-                                      });
-                                    },
-                                    activeColor: Color(getColor(docs[index]['color'])),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 7,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text(docs[index]['name']),
-                                          SizedBox(width: 120),
-                                          Text(docs[index]['unit']),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 15, right: 15),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(50),
-                                          child: LinearProgressIndicator(
-                                            value: docs[index]['achieved']/(docs[index]['target']*365),
-                                            minHeight: 10,
-                                            backgroundColor: Colors.grey.shade100,
-                                            color: Color(getColor(docs[index]['color'])),
-                                          ),
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 15),
-                                            child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*365).toString()),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        FloatingActionButton(
-                                          heroTag: null,
-                                          backgroundColor: Color(getColor(docs[index]['color'])),
-                                          foregroundColor: Colors.white,
-                                          child: Icon(Icons.add),
-                                          mini: true,
-                                          onPressed: () {
-                                            // firestore.runTransaction((transaction) async {
-                                            //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                            //   await transaction.update(freshSnap.reference, {
-                                            //     'achieved': freshSnap['achieved'] + 1,
-                                            //   });
-                                            // });
-                                            // QuerySnapshot docRef = ;
-                                            firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                          },
-                                        ),
-                                        FloatingActionButton(
-                                          heroTag: null,
-                                          backgroundColor: Color(getColor(docs[index]['color'])),
-                                          foregroundColor: Colors.white,
-                                          child: Icon(Icons.remove),
-                                          mini: true,
-                                          onPressed: () {
-                                            // firestore.runTransaction((transaction) async {
-                                            //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                            //   await transaction.update(freshSnap.reference, {
-                                            //     'achieved': freshSnap['achieved'] - 1,
-                                            //   });
-                                            // });
-                                            // QuerySnapshot docRef = ;
-                                            firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                      ]
-                  ),
+                      // GlowingOverscrollColorChanger(
+                      //   color: Colors.amber,
+                      //   child: ListView(
+                      //     children: List.generate(docs.length, (index) {
+                      //       return 
+                      //       Container(
+                      //         height: 130,
+                      //         margin: EdgeInsets.all(10),
+                      //         decoration: BoxDecoration(
+                      //           color: Colors.white,
+                      //           borderRadius: BorderRadius.circular(30),
+                      //           boxShadow:[ 
+                      //             BoxShadow(
+                      //                 color: Colors.grey.withOpacity(0.5),
+                      //                 spreadRadius: 5,
+                      //                 blurRadius: 7,
+                      //                 offset: Offset(0, 5),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //         child: Row(
+                      //           children: [
+                      //             Expanded(
+                      //               flex: 1,
+                      //               child: Radio<QueryDocumentSnapshot>(
+                      //                 value: docs[index],
+                      //                 groupValue: _variable,
+                      //                 onChanged: (value) {
+                      //                   setState(() {
+                      //                     _variable = value!;
+                      //                     currentVariable = docs[index]['name'];
+                      //                     variableIndex = index;
+                      //                   });
+                      //                 },
+                      //                 activeColor: Color(getColor(docs[index]['color'])),
+                      //               ),
+                      //             ),
+                      //             Expanded(
+                      //               flex: 7,
+                      //               child: Column(
+                      //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //                 children: [
+                      //                   Row(
+                      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //                     children: [
+                      //                       Text(docs[index]['name']),
+                      //                       SizedBox(width: 120),
+                      //                       Text(docs[index]['unit']),
+                      //                     ],
+                      //                   ),
+                      //                   Padding(
+                      //                     padding: const EdgeInsets.only(left: 15, right: 15),
+                      //                     child: ClipRRect(
+                      //                       borderRadius: BorderRadius.circular(50),
+                      //                       child: LinearProgressIndicator(
+                      //                         value: docs[index]['achieved']/(docs[index]['target']*30),
+                      //                         // value: pastMonthData(docs),
+                      //                         minHeight: 10,
+                      //                         backgroundColor: Colors.grey.shade100,
+                      //                         color: Color(getColor(docs[index]['color'])),
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                   Row(
+                      //                     mainAxisAlignment: MainAxisAlignment.end,
+                      //                     children: [
+                      //                       Padding(
+                      //                         padding: const EdgeInsets.only(right: 15),
+                      //                         child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*30).toString()),
+                      //                       )
+                      //                     ],
+                      //                   )
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //             Expanded(
+                      //               flex: 2,
+                      //               child: Padding(
+                      //                 padding: const EdgeInsets.only(right: 8.0),
+                      //                 child: Column(
+                      //                   mainAxisAlignment: MainAxisAlignment.center,
+                      //                   children: [
+                      //                     FloatingActionButton(
+                      //                       heroTag: null,
+                      //                       backgroundColor: Color(getColor(docs[index]['color'])),
+                      //                       foregroundColor: Colors.white,
+                      //                       child: Icon(Icons.add),
+                      //                       mini: true,
+                      //                       onPressed: () {
+                      //                         // firestore.runTransaction((transaction) async {
+                      //                         //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                      //                         //   await transaction.update(freshSnap.reference, {
+                      //                         //     'achieved': freshSnap['achieved'] + 1,
+                      //                         //   });
+                      //                         // });
+                      //                         // QuerySnapshot docRef = ;
+                      //                         firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
+                      //                       },
+                      //                     ),
+                      //                     FloatingActionButton(
+                      //                       heroTag: null,
+                      //                       backgroundColor: Color(getColor(docs[index]['color'])),
+                      //                       foregroundColor: Colors.white,
+                      //                       child: Icon(Icons.remove),
+                      //                       mini: true,
+                      //                       onPressed: () {
+                      //                         // firestore.runTransaction((transaction) async {
+                      //                         //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                      //                         //   await transaction.update(freshSnap.reference, {
+                      //                         //     'achieved': freshSnap['achieved'] - 1,
+                      //                         //   });
+                      //                         // });
+                      //                         // QuerySnapshot docRef = ;
+                      //                         firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
+                      //                       },
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               )
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       );
+                      //     }),
+                      //   ),
+                      // ),
+                      // GlowingOverscrollColorChanger(
+                      //   color: Colors.amber,
+                      //   child: ListView(
+                      //     children: List.generate(docs.length, (index) {
+                      //       return 
+                      //       Container(
+                      //         height: 130,
+                      //         margin: EdgeInsets.all(10),
+                      //         decoration: BoxDecoration(
+                      //           color: Colors.white,
+                      //           borderRadius: BorderRadius.circular(30),
+                      //           boxShadow:[ 
+                      //             BoxShadow(
+                      //                 color: Colors.grey.withOpacity(0.5),
+                      //                 spreadRadius: 5,
+                      //                 blurRadius: 7,
+                      //                 offset: Offset(0, 5),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //         child: Row(
+                      //           children: [
+                      //             Expanded(
+                      //               flex: 1,
+                      //               child: Radio<QueryDocumentSnapshot>(
+                      //                 value: docs[index],
+                      //                 groupValue: _variable,
+                      //                 onChanged: (value) {
+                      //                   setState(() {
+                      //                     _variable = value!;
+                      //                     currentVariable = docs[index]['name'];
+                      //                     variableIndex = index;
+                      //                   });
+                      //                 },
+                      //                 activeColor: Color(getColor(docs[index]['color'])),
+                      //               ),
+                      //             ),
+                      //             Expanded(
+                      //               flex: 7,
+                      //               child: Column(
+                      //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //                 children: [
+                      //                   Row(
+                      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //                     children: [
+                      //                       Text(docs[index]['name']),
+                      //                       SizedBox(width: 120),
+                      //                       Text(docs[index]['unit']),
+                      //                     ],
+                      //                   ),
+                      //                   Padding(
+                      //                     padding: const EdgeInsets.only(left: 15, right: 15),
+                      //                     child: ClipRRect(
+                      //                       borderRadius: BorderRadius.circular(50),
+                      //                       child: LinearProgressIndicator(
+                      //                         value: docs[index]['achieved']/(docs[index]['target']*365),
+                      //                         minHeight: 10,
+                      //                         backgroundColor: Colors.grey.shade100,
+                      //                         color: Color(getColor(docs[index]['color'])),
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                   Row(
+                      //                     mainAxisAlignment: MainAxisAlignment.end,
+                      //                     children: [
+                      //                       Padding(
+                      //                         padding: const EdgeInsets.only(right: 15),
+                      //                         child: Text(docs[index]['achieved'].toString() + "/" + (docs[index]['target']*365).toString()),
+                      //                       )
+                      //                     ],
+                      //                   )
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //             Expanded(
+                      //               flex: 2,
+                      //               child: Padding(
+                      //                 padding: const EdgeInsets.only(right: 8.0),
+                      //                 child: Column(
+                      //                   mainAxisAlignment: MainAxisAlignment.center,
+                      //                   children: [
+                      //                     FloatingActionButton(
+                      //                       heroTag: null,
+                      //                       backgroundColor: Color(getColor(docs[index]['color'])),
+                      //                       foregroundColor: Colors.white,
+                      //                       child: Icon(Icons.add),
+                      //                       mini: true,
+                      //                       onPressed: () {
+                      //                         // firestore.runTransaction((transaction) async {
+                      //                         //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                      //                         //   await transaction.update(freshSnap.reference, {
+                      //                         //     'achieved': freshSnap['achieved'] + 1,
+                      //                         //   });
+                      //                         // });
+                      //                         // QuerySnapshot docRef = ;
+                      //                         firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc().update({'achieved': docs[index]['achieved'] + 1});
+                      //                       },
+                      //                     ),
+                      //                     FloatingActionButton(
+                      //                       heroTag: null,
+                      //                       backgroundColor: Color(getColor(docs[index]['color'])),
+                      //                       foregroundColor: Colors.white,
+                      //                       child: Icon(Icons.remove),
+                      //                       mini: true,
+                      //                       onPressed: () {
+                      //                         // firestore.runTransaction((transaction) async {
+                      //                         //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                      //                         //   await transaction.update(freshSnap.reference, {
+                      //                         //     'achieved': freshSnap['achieved'] - 1,
+                      //                         //   });
+                      //                         // });
+                      //                         // QuerySnapshot docRef = ;
+                      //                         firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
+                      //                       },
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               )
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       );
+                      //     }),
+                      //   ),
+                      // ),
+                    // ]
+                  // ),
                 ),
               )
             ],
@@ -886,6 +971,19 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         }
       ),
     );
+  }
+
+  pastMonthData(docs) {
+    var now = DateTime.now();
+    int score = 0;
+    int target = 0;
+    // print("Doc:" + docs.parent);
+    for(int i = math.max(docs.length - 30, 0); i<docs.length; i++) {
+      print("Score:" + score.toString() + " Target: " + target.toString());
+      score += int.parse(docs[i]['score']);
+      target += int.parse(docs[i]['target']);
+    }
+    return score/target;
   }
 }
 
@@ -900,19 +998,19 @@ class LineTilesWeek {
       getTitles: (value) {
         switch (value.toInt()) {
           case 0:
-            return 'MON';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 6))).toString();
           case 1:
-            return 'TUE';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 5))).toString();
           case 2:
-            return 'WED';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 4))).toString();
           case 3:
-            return 'THUR';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 3))).toString();
           case 4:
-            return 'FRI';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 2))).toString();
           case 5:
-            return 'SAT';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 1))).toString();
           case 6:
-            return 'SUN';
+            return DateFormat("EEE").format(DateTime.now().subtract(Duration(days: 0))).toString();
         }
         return '';
       },
@@ -951,7 +1049,7 @@ class LineTilesMonth {
       getTitles: (value) {
         switch (value.toInt()) {
           case 0:
-            return '1';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 30))).toString();
           // case 1:
           //   return '2';
           // case 2:
@@ -961,7 +1059,7 @@ class LineTilesMonth {
           // case 4:
           //   return '5';
           case 5:
-            return '6';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 25))).toString();
           // case 6:
           //   return '7';
           // case 7:
@@ -971,7 +1069,7 @@ class LineTilesMonth {
           // case 9:
           //   return '10';
           case 10:
-            return '11';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days:20))).toString();
           // case 11:
           //   return '12';
           // case 12:
@@ -981,7 +1079,7 @@ class LineTilesMonth {
           // case 14:
           //   return '15';
           case 15:
-            return '16';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 15))).toString();
           // case 16:
           //   return '17';
           // case 17:
@@ -991,7 +1089,7 @@ class LineTilesMonth {
           // case 19:
           //   return '20';
           case 20:
-            return '21';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 10))).toString();
           // case 21:
           //   return '22';
           // case 22:
@@ -1001,7 +1099,7 @@ class LineTilesMonth {
           // case 24:
           //   return '25';
           case 25:
-            return '26';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 5))).toString();
           // case 26:
           //   return '27';
           // case 27:
@@ -1011,7 +1109,7 @@ class LineTilesMonth {
           // case 29:
           //   return '30';
           case 30:
-            return '31';
+            return DateFormat("d/M").format(DateTime.now().subtract(Duration(days: 0))).toString();
         }
         return '';
       },
@@ -1051,28 +1149,28 @@ class LineTilesYear {
       reservedSize: 20,
       getTitles: (value) {
         switch (value.toInt()) {
-          case 0:
-            return 'JAN';
+          case 1:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 300))).toString();
           // case 1:
           //   return 'FEB';
-          case 2:
-            return 'MAR';
+          case 3:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 240))).toString();
           // case 3:
           //   return 'APR';
-          case 4:
-            return 'MAY';
+          case 5:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 180))).toString();
           // case 5:
           //   return 'JUN';
-          case 6:
-            return 'JUL';
+          case 7:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 120))).toString();
           // case 7:
           //   return 'AUG';
-          case 8:
-            return 'SEP';
+          case 9:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 60))).toString();
           // case 9:
           //   return 'OCT';
-          case 10:
-            return 'NOV';
+          case 11:
+            return DateFormat("MMM").format(DateTime.now().subtract(Duration(days: 0))).toString();
           // case 11:
           //   return 'DEC';
         }
@@ -1122,7 +1220,8 @@ class Variable {
 class Data {
   DateTime date;
   int score;
-  Data(this.date, this.score);
+  int target;
+  Data(this.date, this.score, this.target);
 }
 
 /// Overrides the [GlowingOverscrollIndicator] color used by descendant widgets.

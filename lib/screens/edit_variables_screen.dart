@@ -92,6 +92,7 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
                     }
                     return null;
                   },
+                  textCapitalization: TextCapitalization.words,
                   cursorColor: Colors.yellow.shade700,
                   decoration: InputDecoration(
                     hintText: "Name",
@@ -114,6 +115,7 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
                     }
                     return null;
                   },
+                  textCapitalization: TextCapitalization.words,
                   cursorColor: Colors.yellow.shade700,
                   decoration: InputDecoration(
                     hintText: "Unit",
@@ -176,11 +178,11 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
     });
   }
 
-  editVariableDialog(BuildContext context, QueryDocumentSnapshot variable) {
+  editVariableDialog(BuildContext context, QueryDocumentSnapshot variable, QueryDocumentSnapshot variableInstance) {
 
     // TextEditingController _nameController = TextEditingController(text: variable['name'] + " (uneditable)");
     // TextEditingController _unitController = TextEditingController(text: variable['unit'] + " (uneditable)");
-    TextEditingController _targetController = TextEditingController(text: variable['target'].toString());
+    TextEditingController _targetController = TextEditingController(text: variableInstance['target'].toString());
     TextEditingController _colorController = TextEditingController();
 
     String name, unit, color;
@@ -509,105 +511,130 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
                         child: ListView(
                           children: List.generate(docs.length, (index) {
                             return 
-                            Container(
-                              height: 130,
-                              margin: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow:[ 
-                                  BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 5),
+                            StreamBuilder(
+                              stream: firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').snapshots(),
+                              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                                if (!snapshot.hasData) {
+                                  // print("Loading\n");
+                                  return const Text('Loading values...');
+                                }
+                                var data = snapshot.data.docs;
+                                data = data.sublist(data.length - 1, data.length);
+                                return Container(
+                                  height: 130,
+                                  margin: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow:[ 
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 5,
+                                          blurRadius: 7,
+                                          offset: Offset(0, 5),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 7,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 7,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            Text(docs[index]['name']),
-                                            SizedBox(width: 120),
-                                            Text(docs[index]['unit']),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 15, right: 15),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(50),
-                                            child: LinearProgressIndicator(
-                                              value: docs[index]['achieved']/docs[index]['target'],
-                                              minHeight: 10,
-                                              backgroundColor: Colors.grey.shade100,
-                                              color: Color(getColor(docs[index]['color'])),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Text(docs[index]['name']),
+                                                SizedBox(width: 120),
+                                                Text(docs[index]['unit']),
+                                              ],
                                             ),
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
                                             Padding(
-                                              padding: const EdgeInsets.only(right: 15),
-                                              child: Text(docs[index]['achieved'].toString() + "/" + docs[index]['target'].toString()),
+                                              padding: const EdgeInsets.only(left: 15, right: 15),
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(50),
+                                                child: LinearProgressIndicator(
+                                                  value: data.last['score']/data.last['target'],
+                                                  minHeight: 10,
+                                                  backgroundColor: Colors.grey.shade100,
+                                                  color: Color(getColor(docs[index]['color'])),
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right: 15),
+                                                  child: Text(data.last['score'].toString() + "/" + data.last['target'].toString()),
+                                                )
+                                              ],
                                             )
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          FloatingActionButton(
-                                            heroTag: null,
-                                            backgroundColor: Color(getColor(docs[index]['color'])),
-                                            foregroundColor: Colors.white,
-                                            child: Icon(Icons.delete),
-                                            mini: true,
-                                            onPressed: () async {
-                                              bool delete = await deleteVariableDialog(context);
-                                              // print(delete);
-                                              if (delete) {
-                                                firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
-                                              }
-                                              // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                            },
-                                          ),
-                                          FloatingActionButton(
-                                            heroTag: null,
-                                            backgroundColor: Color(getColor(docs[index]['color'])),
-                                            foregroundColor: Colors.white,
-                                            child: Icon(Icons.edit),
-                                            mini: true,
-                                            onPressed: () async {
-                                              // print(docs[index]);
-                                              Variable newVariable = await editVariableDialog(context, docs[index]);
-                                              firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).set({'name': newVariable.name, 'unit': newVariable.unit, 'target': newVariable.target, 'achieved': newVariable.achieved, 'color': newVariable.color});
-                                              // // print(delete);
-                                              // if (delete) {
-                                              //   firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
-                                              // }
-                                              // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                            },
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 8.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              FloatingActionButton(
+                                                heroTag: null,
+                                                backgroundColor: Color(getColor(docs[index]['color'])),
+                                                foregroundColor: Colors.white,
+                                                child: Icon(Icons.delete),
+                                                mini: true,
+                                                onPressed: () async {
+                                                  bool delete = await deleteVariableDialog(context);
+                                                  // print(delete);
+                                                  if (delete) {
+                                                    firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
+                                                  }
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
+                                                },
+                                              ),
+                                              FloatingActionButton(
+                                                heroTag: null,
+                                                backgroundColor: Color(getColor(docs[index]['color'])),
+                                                foregroundColor: Colors.white,
+                                                child: Icon(Icons.edit),
+                                                mini: true,
+                                                onPressed: () async {
+                                                  // print(docs[index]);
+                                                  Variable newVariable = await editVariableDialog(context, docs[index], data.last);
+                                                  for(var i in data) {
+                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                      // print(i['date']);
+                                                      // print("Date found");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'target': newVariable.target});
+                                                      break;
+                                                    }
+                                                    else {
+                                                      // print("New document");
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
+                                                    }
+                                                  }
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
+                                                  // // print(delete);
+                                                  // if (delete) {
+                                                  //   firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
+                                                  // }
+                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                );
+                              }
                             );
                           }),
                         ),
@@ -626,6 +653,16 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
                         onPressed: () async {
                           Variable newVariable = await addVariableDialog(context);
                           firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).set({'name': newVariable.name, 'unit': newVariable.unit, 'target': newVariable.target, 'achieved': newVariable.achieved, 'color': newVariable.color});
+                          firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day, ).toString()).set(
+                            {
+                              'date': DateTime.utc(
+                                DateTime.now().year,
+                                DateTime.now().month,
+                                DateTime.now().day,
+                              ),
+                              'score': 0,
+                              'target': newVariable.target
+                            });
                         },
                       ),
                     ),

@@ -84,7 +84,12 @@ class _AuthScreenState extends State<AuthScreen> {
               .collection('variables')
               .doc(defaultVariables[i].name)
               .collection('data')
-              .doc()
+              .doc(DateTime.utc(
+                DateTime.now().year,
+                DateTime.now().month,
+                DateTime.now().day,
+                ).subtract(Duration(days: j)).toString()
+              )
               .set({
                 'date': DateTime.utc(
                               DateTime.now().year,
@@ -92,6 +97,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               DateTime.now().day,
                             ).subtract(Duration(days: j)),
                 'score': (math.Random().nextInt(20)),
+                'target': (math.Random().nextInt(20) + 1)
               });
             }
 
@@ -161,5 +167,6 @@ class Variable {
 class Data {
   DateTime date;
   int score;
-  Data(this.date, this.score);
+  int target;
+  Data(this.date, this.score, this.target);
 }

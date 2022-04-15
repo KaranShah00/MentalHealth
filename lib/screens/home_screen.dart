@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:mental_health/screens/exercise_screen.dart';
 import 'package:mental_health/screens/profile_screen.dart';
 import 'package:mental_health/screens/stats_screen.dart';
 import 'package:mental_health/screens/reminders_screen.dart';
@@ -37,8 +38,8 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
     
   }
 
-  int focusedPage = 0;
-  int previousPage = 0;
+  int focusedPage = 2;
+  int previousPage = 2;
   static List<Widget> _widgetOptions = <Widget>[
     HelpScreen(),
     RemindersScreen(),
@@ -310,10 +311,34 @@ class _HomeScreenState extends State<HomeScreen> {
               }),
         ],
       ),
-      body: Container(
-        child: SafeArea(
-          child: Text("Home Page"),
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Text("Home Page"),
+          Container(
+            padding: EdgeInsets.all(10),
+            height: 300,
+            width: 450,
+            child: Column(
+              children: [
+                Text("Exercise Recommendations for you"),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ExerciseScreen();
+                        }
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.run_circle)
+                ),
+              ],
+            )
+          )
+        ],
       ),
     );
   }

@@ -13,7 +13,8 @@ import 'package:http/http.dart' as http;
 
 
 class JournalScreen extends StatefulWidget {
-  const JournalScreen({ Key? key }) : super(key: key);
+  final bool track;
+  const JournalScreen(this.track, { Key? key }) : super(key: key);
 
   @override
   _JournalScreenState createState() => _JournalScreenState();
@@ -89,11 +90,11 @@ class _JournalScreenState extends State<JournalScreen> {
           var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
           currentDoc.get().then((data) {
             if(data.docs.length != 0) {
-              debugPrint("In if");
+              // debugPrint("In if");
               entext = data.docs[0]['entry'];
               decrypt().then((value) => _journalController.text = value);
             }
-            debugPrint("Not in if");
+            // debugPrint("Not in if");
             setState(() {
               _isLoading = false;
             });
@@ -101,15 +102,15 @@ class _JournalScreenState extends State<JournalScreen> {
         });
         }
       else{
-        debugPrint("Key: $key");
+        // debugPrint("Key: $key");
         var currentDoc = firestore.collection('users').doc(user?.uid).collection('journal').where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()));
         currentDoc.get().then((data) {
           if(data.docs.length != 0) {
-            debugPrint("In if");
+            // debugPrint("In if");
             entext = data.docs[0]['entry'];
             decrypt().then((value) => _journalController.text = value);
           }
-          debugPrint("Not in if");
+          // debugPrint("Not in if");
           setState(() {
             _isLoading = false;
           });
@@ -187,7 +188,7 @@ class _JournalScreenState extends State<JournalScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    print(widget.track);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey.shade500,
@@ -281,13 +282,13 @@ class _JournalScreenState extends State<JournalScreen> {
                       //   child: Text('Analyse'),
                       //   onPressed: uploadText,
                       // ),
-                      Text(value),
+                      widget.track ? Text(value) : Container(),
                       GestureDetector(
-                        child: Text(
+                        child: widget.track ? Text(
                           link,
                           style: TextStyle(
                               color: Colors.blue, decoration: TextDecoration.underline),
-                        ),
+                        ) : Container(),
                         onTap: null
                       ),
                     ],
