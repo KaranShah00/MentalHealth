@@ -8,17 +8,8 @@ class NavigationBar extends StatelessWidget {
       height: 90,
       margin: EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.bottomCenter,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          NavBarItem(
-            icon: Icons.arrow_back_ios,
-          ),
-          Text('Playing Now',style: TextStyle(fontSize: 20,color: darkPrimaryColor,fontWeight: FontWeight.w500),),
-          NavBarItem(
-            icon: Icons.list,
-          )
-        ],
+      child: Center(
+          child: Text('Playing Now',style: TextStyle(fontSize: 20,color: darkPrimaryColor,fontWeight: FontWeight.w500),),
       ),
     );
   }
