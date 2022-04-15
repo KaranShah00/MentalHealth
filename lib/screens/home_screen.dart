@@ -1,7 +1,14 @@
 import 'package:animations/animations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide NavigationBar;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../widgets/playerControls.dart';
+import '../widgets/colors.dart';
+import '../widgets/albumart.dart';
+import '../widgets/navbar.dart';
+import '../model/myaudio.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mental_health/screens/profile_screen.dart';
 import 'package:mental_health/screens/stats_screen.dart';
@@ -20,7 +27,7 @@ class MyNavigationBar extends StatefulWidget {
 
 class _MyNavigationBarState extends State<MyNavigationBar> {
   // final AuthService _auth = AuthService();
-  
+
   @override
   void initState() {
     super.initState();
@@ -34,11 +41,11 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
     //   fetchBackground,
     //   frequency: Duration(minutes: 15),
     // );
-    
+
   }
 
-  int focusedPage = 0;
-  int previousPage = 0;
+  int focusedPage = 4;
+  int previousPage = 4;
   static List<Widget> _widgetOptions = <Widget>[
     HelpScreen(),
     RemindersScreen(),
@@ -72,70 +79,70 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
       body: PageTransitionSwitcher(
         reverse: previousPage > focusedPage,
         transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
-        SharedAxisTransition(
-          animation: primaryAnimation,
-          secondaryAnimation: secondaryAnimation,
-          transitionType: SharedAxisTransitionType.horizontal,
-          child: child,
-        ),
+            SharedAxisTransition(
+              animation: primaryAnimation,
+              secondaryAnimation: secondaryAnimation,
+              transitionType: SharedAxisTransitionType.horizontal,
+              child: child,
+            ),
         child: _widgetOptions.elementAt(focusedPage),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              blurRadius: 10,
-              offset: Offset(0, -3),
-            )
-          ]
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                blurRadius: 10,
+                offset: Offset(0, -3),
+              )
+            ]
         ),
         child: BottomNavigationBar(
           elevation: 10,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.help,
-                  ),
-                  label: 'Help',
-                  backgroundColor: Color(0xff8000ff),
-                  // backgroundColor: Colors.grey,
-                ),
-                BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.schedule,
-                    ),
-                    label: 'Reminders',
-                    backgroundColor: Colors.pinkAccent,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.home,
-                  ),
-                  label: 'Home',
-                  backgroundColor: Color(0xff81dc17),
-                  // backgroundColor: Colors.grey,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    // Icons.graphic_eq_rounded,
-                    Icons.timeline,
-                  ),
-                  label: 'Stats',
-                  backgroundColor: Color(0xffffba00),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.account_circle,
-                  ),
-                  label: 'Profile',
-                  backgroundColor: Color(0xff1d517c),
-                ),
-              ],
-              currentIndex: focusedPage,
-              iconSize: 20,
-              onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.help,
               ),
+              label: 'Help',
+              backgroundColor: Color(0xff8000ff),
+              // backgroundColor: Colors.grey,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.schedule,
+              ),
+              label: 'Reminders',
+              backgroundColor: Colors.pinkAccent,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home,
+              ),
+              label: 'Home',
+              backgroundColor: Color(0xff81dc17),
+              // backgroundColor: Colors.grey,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                // Icons.graphic_eq_rounded,
+                Icons.timeline,
+              ),
+              label: 'Stats',
+              backgroundColor: Color(0xffffba00),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.account_circle,
+              ),
+              label: 'Profile',
+              backgroundColor: Color(0xff1d517c),
+            ),
+          ],
+          currentIndex: focusedPage,
+          iconSize: 20,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
@@ -161,83 +168,103 @@ class _HomeScreenState extends State<HomeScreen> {
   User? user;
   var _isLoading = true;
   List<Reminder> reminders = [];
+  List<Map<String, String>> firestoreData = [];
+  double sliderValue = 2;
+  FirebaseStorage? storage;
+  Reference? ref;
+  var p;
 
   @override
   void initState() {
     if (_isLoading) {
       user = auth.currentUser;
       super.initState();
-      AwesomeNotifications().isNotificationAllowed().then(
-        (isAllowed) {
-          if (!isAllowed) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Allow Notifications'),
-                content:
-                    const Text('Our app would like to send you notifications'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Don\'t Allow',
-                      style: TextStyle(color: Colors.grey, fontSize: 18),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => AwesomeNotifications()
-                        .requestPermissionToSendNotifications()
-                        .then((_) => Navigator.pop(context)),
-                    child: const Text(
-                      'Allow',
-                      style: TextStyle(
-                        color: Colors.teal,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      );
-      firestore
-          .collection('users')
-          .doc(user?.uid)
-          .collection('reminders')
-          .orderBy('timestamp', descending: true)
-          .get()
-          .then((rems) {
-        for (var rem in rems.docs) {
-          var r = rem.data();
-          // debugPrint("Id: ${r['id']}");
-          // debugPrint("Id type: ${r['id'].runtimeType}");
-          // debugPrint("Doc Id type: ${rem.id.runtimeType}");
-          // debugPrint("Hour Id type: ${r['hour'].runtimeType}");
-          // debugPrint("Minute Id type: ${r['minute'].runtimeType}");
-          reminders.add(Reminder(
-            rem.id,
-            r['id'],
-            r['type'],
-            r['body'],
-            r['year'],
-            r['month'],
-            r['day'],
-            r['weekday'],
-            r['hour'],
-            r['minute'],
-          ));
-        }
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
+      storage = FirebaseStorage.instance;
+      ref = storage!.ref('/angry');
+      // ListResult result;
+      // ref!.listAll().then((value) {
+      //   result = value;
+      //   for (Reference r in result.items) {
+      //     r.getDownloadURL().then((value) {
+      //       firestoreData.add({
+      //         'url': value,
+      //         'name': r.name,
+      //         'image':
+      //         'https://thegrowingdeveloper.org/thumbs/1000x1000r/audios/quiet-time-photo.jpg',
+      //       });
+      //     });
+      //   }
+      // AwesomeNotifications().isNotificationAllowed().then(
+      //   (isAllowed) {
+      //     if (!isAllowed) {
+      //       showDialog(
+      //         context: context,
+      //         builder: (context) => AlertDialog(
+      //           title: const Text('Allow Notifications'),
+      //           content:
+      //               const Text('Our app would like to send you notifications'),
+      //           actions: [
+      //             TextButton(
+      //               onPressed: () {
+      //                 Navigator.pop(context);
+      //               },
+      //               child: const Text(
+      //                 'Don\'t Allow',
+      //                 style: TextStyle(color: Colors.grey, fontSize: 18),
+      //               ),
+      //             ),
+      //             TextButton(
+      //               onPressed: () => AwesomeNotifications()
+      //                   .requestPermissionToSendNotifications()
+      //                   .then((_) => Navigator.pop(context)),
+      //               child: const Text(
+      //                 'Allow',
+      //                 style: TextStyle(
+      //                   color: Colors.teal,
+      //                   fontSize: 18,
+      //                   fontWeight: FontWeight.bold,
+      //                 ),
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //       );
+      //     }
+      //   },
+      // );
+      // firestore
+      //     .collection('users')
+      //     .doc(user?.uid)
+      //     .collection('reminders')
+      //     .orderBy('timestamp', descending: true)
+      //     .get()
+      //     .then((rems) {
+      //   for (var rem in rems.docs) {
+      //     var r = rem.data();
+      //     // debugPrint("Id: ${r['id']}");
+      //     // debugPrint("Id type: ${r['id'].runtimeType}");
+      //     // debugPrint("Doc Id type: ${rem.id.runtimeType}");
+      //     // debugPrint("Hour Id type: ${r['hour'].runtimeType}");
+      //     // debugPrint("Minute Id type: ${r['minute'].runtimeType}");
+      //     reminders.add(Reminder(
+      //       rem.id,
+      //       r['id'],
+      //       r['type'],
+      //       r['body'],
+      //       r['year'],
+      //       r['month'],
+      //       r['day'],
+      //       r['weekday'],
+      //       r['hour'],
+      //       r['minute'],
+      //     ));
+      //   }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      //});
     }
   }
 
@@ -295,6 +322,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    p = Provider.of<MyAudio>(context);
+    List<Map<String, String>> data = p.getData();
+    int index = p.getIndex();
+    double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff81dc17),
@@ -302,18 +333,76 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
               child: Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                ),
+                Icons.logout,
+                color: Colors.white,
+              ),
               onPressed: () {
                 FirebaseAuth.instance.signOut();
               }),
         ],
       ),
-      body: Container(
-        child: SafeArea(
-          child: Text("Home Page"),
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          NavigationBar(),
+          Container(
+            margin: EdgeInsets.only(left: 40),
+            height: height / 2.5,
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return AlbumArt();
+              },
+              itemCount: 1,
+              scrollDirection: Axis.horizontal,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: FittedBox(
+              child: Text(data[index]['name']!,
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w500,
+                    color: darkPrimaryColor),
+              ),
+            ),
+          ),
+          // Text(
+          //   'The Free Nationals',
+          //   style: TextStyle(
+          //       fontSize: 20,
+          //       fontWeight: FontWeight.w400,
+          //       color: darkPrimaryColor),
+          // ),
+          Column(
+            children: [
+              SliderTheme(
+                data: SliderThemeData(
+                    trackHeight: 5,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5)
+                ),
+                child: Consumer<MyAudio>(
+                  builder:(_,myAudioModel,child)=> Slider(
+                    value: myAudioModel.position==null? 0 : myAudioModel.position.inMilliseconds.toDouble() ,
+                    activeColor: darkPrimaryColor,
+                    inactiveColor: darkPrimaryColor.withOpacity(0.3),
+                    onChanged: (value) {
+
+                      myAudioModel.seekAudio(Duration(milliseconds: value.toInt()));
+
+                    },
+                    min: 0,
+                    max:myAudioModel.totalDuration==null? 20 : myAudioModel.totalDuration.inMilliseconds.toDouble() ,
+                  ),
+                ),
+              ),
+            ],
+
+          ),
+
+          PlayerControls(ref),
+
+        ],
       ),
     );
   }
