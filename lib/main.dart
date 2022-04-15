@@ -88,21 +88,23 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Mental Well Being',
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, userSnapshot) {
-          if (userSnapshot.connectionState == ConnectionState.waiting) {
-            return LoadingScreen();
-          }
-          if (userSnapshot.hasData) {
-            return ChangeNotifierProvider(
-                create: (_) => MyAudio(), child: MyNavigationBar());
-          }
-          return AuthScreen();
-        },
+    return ChangeNotifierProvider(
+      create: (_) => MyAudio(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Mental Well Being',
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (ctx, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return LoadingScreen();
+            }
+            if (userSnapshot.hasData) {
+              return MyNavigationBar();
+            }
+            return AuthScreen();
+          },
+        ),
       ),
     );
   }
