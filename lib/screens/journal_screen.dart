@@ -37,6 +37,8 @@ class _JournalScreenState extends State<JournalScreen> {
   String value = "";
   String link = "";
   var mood = "";
+  double happyScore = 0.0;
+  bool flag = false;
 
   void encrypt() async {
     final cryptor = new PlatformStringCryptor();
@@ -67,7 +69,7 @@ class _JournalScreenState extends State<JournalScreen> {
       // }
       if(data.docs.length == 0) {
         firestore.collection('users').doc(user?.uid).collection('journal').doc().set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': entext});
-        print("New entry");
+        // print("New entry");
       }
       else {
         data.docs[0].reference.set({'date': DateFormat("yyyy-MM-dd").format(_whichDate), 'entry': entext});
@@ -147,6 +149,7 @@ class _JournalScreenState extends State<JournalScreen> {
       var fear = emotions['Fear'];
       var happy = emotions['Happy'];
       var sad = emotions['Sad'];
+      happyScore = happy;
       // var surprise = emotions['Surprise'];
       if (angry + fear + happy + sad == 0) {
         value = " Sorry, the given text could not be analysed";
@@ -156,14 +159,14 @@ class _JournalScreenState extends State<JournalScreen> {
         if(angry > max) {
           // value = "Angry: $angry";
           value = "You seem angry.";
-          link = "Would you like to calm your nerves?";
+          link = "Try this to calm your nerves";
           max = angry;
           mood = "angry";
         }
         if(fear > max) {
           // value = "Fear: $fear";
           value = "Are you afraid of something?";
-          link = "Try engaging in some meditation.";
+          link = "Try engaging in some meditation";
           max = fear;
           mood = "fear";
         }
@@ -197,7 +200,7 @@ class _JournalScreenState extends State<JournalScreen> {
     print(widget.track);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey.shade500,
+        // backgroundColor: Colors.grey.shade500,
         title: Text('My Journal'),
         actions: [
           TextButton(
@@ -209,6 +212,19 @@ class _JournalScreenState extends State<JournalScreen> {
                 FirebaseAuth.instance.signOut();
               }),
         ],
+        flexibleSpace: Container(
+          decoration: new BoxDecoration(
+            gradient: LinearGradient(
+                colors: [
+                  Colors.grey.shade500,
+                  Colors.grey.shade700,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp),
+          ),
+        ),
       ),
       body: _isLoading ? const Center(child: CircularProgressIndicator(),) : Padding(
         padding: const EdgeInsets.only(top: 20.0, left: 15, right: 15, bottom: 20),
@@ -288,22 +304,30 @@ class _JournalScreenState extends State<JournalScreen> {
                       //   child: Text('Analyse'),
                       //   onPressed: uploadText,
                       // ),
-                      widget.track ? Text(value) : Container(),
-                      GestureDetector(
-                        child: widget.track ? Text(
+                      widget.track ? flag ? Text(value) : Container() : Container(),
+                      widget.track ? flag ? ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blueGrey.shade700,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(23)
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) {
+                              return RecommendationScreen(mood);
+                            }),
+                          );
+                        },
+                        child: Text(
                           link,
                           style: TextStyle(
-                              color: Colors.blue, decoration: TextDecoration.underline),
-                        ) : Container(),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) {
-                                return RecommendationScreen(mood);
-                              }),
-                            );
-                        }
-                      ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300
+                          ),
+                        ),
+                      ) : Container() : Container(),
                     ],
                   ),
                 ),
@@ -314,12 +338,15 @@ class _JournalScreenState extends State<JournalScreen> {
                       child: Icon(
                           Icons.save
                       ),
-                      onPressed: saved ? null : () {
-                        uploadText();
+                      onPressed: saved ? null : () async {
+                        await uploadText();
                         encrypt();
-                        saveJournalEntry(context);
+                        await saveJournalEntry(context);
+                        firestore.collection('users').doc(user?.uid).collection('variables').doc('Mood').collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': happyScore, 'target': 1}, SetOptions(merge: true));
+                        debugPrint("Happy: " + happyScore.toString());
                         setState(() {
                           saved = true;
+                          flag = true;
                         });
                       },
                       foregroundColor: Colors.white,

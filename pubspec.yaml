@@ -55,6 +55,8 @@ dependencies:
   provider: ^6.0.2
   firebase_storage: ^10.2.8
   android_alarm_manager_plus: ^2.0.5
+  expandable: ^5.0.1
+  url_launcher: ^6.0.20
 
 dev_dependencies:
   flutter_test:

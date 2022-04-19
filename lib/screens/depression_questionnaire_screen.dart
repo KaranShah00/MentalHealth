@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import './depression_questionnaire_result_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DepressionQuestionnaireScreen extends StatefulWidget {
   const DepressionQuestionnaireScreen({Key? key}) : super(key: key);
@@ -74,24 +78,65 @@ class _DepressionQuestionnaireScreenState
     3: "Extremely difficult",
   };
 
+  Map<int, List<Color>> color = {
+    0: [Color.fromARGB(255, 255, 111, 0),Color.fromARGB(255, 220, 23, 23),],
+    1: [Color.fromARGB(255, 68, 175, 231),Color.fromARGB(255, 13, 42, 79)],
+    2: [Color.fromARGB(255, 115, 202, 0), Color.fromARGB(255, 20, 147, 3),],
+    3: [Color.fromARGB(255, 255, 217, 59),Color.fromARGB(255, 255, 186, 0),],
+    4: [Color.fromARGB(255, 108, 0, 250), Color.fromARGB(255, 51, 5, 119),],
+  };
+
+  // var random = new Random();
+  int colorIndex = 0;
+
+  int getNewColor() {
+    // setState(() {
+    //   colorIndex = random.nextInt(5);
+    //   // print("Exercise number: " + exercise_number.toString());
+    //   // seconds = exercises[mood]![exercise_number].time;
+    // });
+    return (colorIndex++)%5;
+  }
+
   Widget questionTile(questions, options) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: questions.length,
-    itemBuilder: (context, index) {
+      itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 10,
+            child: Container(
+              // elevation: 10,
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(10),
+              // height: 120,
+              // width: 180,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(35),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), //color of shadow
+                    spreadRadius: 5, //spread radius
+                    blurRadius: 7, // blur radius
+                    offset: Offset(0, 2),
+                  )
+                ],
+                  // gradient: LinearGradient(
+                  //   begin: Alignment.centerLeft,
+                  //   end: Alignment.centerRight,
+                  //   colors: questions.length == 1 ? [Color.fromARGB(255, 128, 128, 128), Color.fromARGB(255, 43, 43, 43)] : color[getNewColor()]!
+                  // ),
+                  color: Colors.white
+              ),
               child: ListTile(
                 title: Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     questions[index]['question'],
                     style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300,
                         color: Colors.black),
                   ),
                 ),
@@ -99,7 +144,12 @@ class _DepressionQuestionnaireScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: scores.map((s) {
                     return RadioListTile(
-                      title: Text(options[s]!),
+                      activeColor: Color.fromARGB(255, 13, 42, 79),
+                      title: Text(options[s]!,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w300
+                      ),),
                       groupValue: questions[index]['score'],
                       value: s,
                       onChanged: (newValue) {
@@ -125,28 +175,90 @@ class _DepressionQuestionnaireScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Depression Screening')),
+      appBar: AppBar(
+        title: const Text('Depression Checker'),
+        actions: [
+          TextButton(
+              child: Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              }),
+        ],
+        flexibleSpace: Container(
+          decoration: new BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 68, 175, 231),
+                Color.fromARGB(255, 13, 42, 79)
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp
+            ),
+          ),
+        ),
+      ),
       body: Container(
           color: Colors.white,
           child: SingleChildScrollView(
             child: Column(
               children: [
                  Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                  child: Column(
-                    children: const [
-                      Text('Please indicate your response for the following questions.'),
-                      Divider(thickness: 3,),
-                      Text('Over the last 2 weeks, how often have you been bothered by any of the following problems?'),
-                    ],
+                   padding: const EdgeInsets.all(8.0),
+                   child: Column(
+                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                     children: [
+                       // Text(
+                       //   'Remember'.toUpperCase(),
+                       //   style: TextStyle(
+                       //     fontWeight: FontWeight.bold,
+                       //     fontSize: 20,
+                       //     letterSpacing: 5,
+                       //     color: Colors.white
+                       //   ),
+                       // ),
+                       Padding(
+                         padding: const EdgeInsets.only(top: 15.0, left: 10, right: 10),
+                         child: Text(
+                           'Over the last 2 weeks, how often have you been bothered by any of the following problems?',
+                           style: TextStyle(
+                            //  color: Colors.white,
+                             fontSize: 18,
+                             fontWeight: FontWeight.w400
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Text(
+                  'Remember: Answer truthfully and to the best of your knowledge. False answers may skew the outcome of the questionnaire.',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black
                   ),
+              ),
                 ),
                 questionTile(questionList, frequency),
-                const Divider(thickness: 5,),
+                SizedBox(height: 20,),
                 questionTile(secondaryQuestionList, secondaryFrequency),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(50, 45),
+                      primary: Color.fromARGB(255, 3, 31, 103),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(23)
+                      ),
+                    ),
                       onPressed: () {
                         int sum = 0;
                         for (var ques in questionList) {
@@ -158,19 +270,61 @@ class _DepressionQuestionnaireScreenState
                           sum += (ques['score']) as int;
                         }
                         debugPrint("Sum: $sum");
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) {
-                            return DepressionQuestionnaireResultScreen(sum);
-                          }),
-                        );
+                        showDepressionResultDialog(context, sum);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) {
+                        //     return DepressionQuestionnaireResultScreen(sum);
+                        //   }),
+                        // );
                       },
-                      child: const Text('Save Responses')),
+                      child: const Text(
+                        'Save Responses',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300
+                        ),
+                      )
+                    ),
                 ),
               ],
             ),
           ),
       ),
     );
+  }
+
+  showDepressionResultDialog(BuildContext context, int sum) {
+      String resultText;
+      if (sum <= 4) {
+        resultText = 'The score suggests that you may not need depression treatment.';
+      } else if (sum <= 17) {
+        resultText = 'The score suggests that mild to moderate symptoms of depression appear to exist, which might warrant closer observation and re-evaluation after a certain period of time.';
+      } else {
+        resultText = 'The score warrants treatment for depression and you should seek professional help.';
+    }
+    return showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        actionsPadding: EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Text("Result"),
+        content: SingleChildScrollView(
+          child: Text(resultText),
+        ),
+        actions: <Widget>[
+          MaterialButton(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            elevation: 5,
+            child: Text("Okay",
+            style: TextStyle(
+              color: Colors.white
+            ),),
+            color: Color.fromARGB(255, 2, 49, 88),
+            onPressed: (){
+              Navigator.of(context).pop();
+            }
+          )
+        ],
+      );
+    });
   }
 }

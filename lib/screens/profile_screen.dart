@@ -142,90 +142,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "My Journal",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) {
-                                return JournalScreen(trackDataValue);
-                              }),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Fill Questionnaire",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) {
-                                return QuestionnaireScreen();
-                              }),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Depression Screening",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) {
-                                return DepressionQuestionnaireScreen();
-                              }),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 70,
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text(
+                  //       "My Journal",
+                  //       style: TextStyle(
+                  //           color: Colors.white,
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.w400),
+                  //     ),
+                  //     IconButton(
+                  //         onPressed: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(builder: (context) {
+                  //               return JournalScreen(trackDataValue);
+                  //             }),
+                  //           );
+                  //         },
+                  //         icon: Icon(
+                  //           Icons.edit,
+                  //           color: Colors.white,
+                  //         )),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 10,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text(
+                  //       "Fill Questionnaire",
+                  //       style: TextStyle(
+                  //           color: Colors.white,
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.w400),
+                  //     ),
+                  //     IconButton(
+                  //         onPressed: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(builder: (context) {
+                  //               return QuestionnaireScreen();
+                  //             }),
+                  //           );
+                  //         },
+                  //         icon: Icon(
+                  //           Icons.edit,
+                  //           color: Colors.white,
+                  //         )),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 10,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text(
+                  //       "Depression Screening",
+                  //       style: TextStyle(
+                  //           color: Colors.white,
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.w400),
+                  //     ),
+                  //     IconButton(
+                  //         onPressed: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(builder: (context) {
+                  //               return DepressionQuestionnaireScreen();
+                  //             }),
+                  //           );
+                  //         },
+                  //         icon: Icon(
+                  //           Icons.edit,
+                  //           color: Colors.white,
+                  //         )),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 70,
+                  // ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -261,56 +261,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "App Themes",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      // DropdownButton<String>(
-                      //   // value: value,
-                      //   dropdownColor: Colors.black,
+                      // Text(
+                      //   "App Themes",
+                      //   style: TextStyle(
+                      //       color: Colors.white,
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.w400),
+                      // ),
+                      // // DropdownButton<String>(
+                      // //   // value: value,
+                      // //   dropdownColor: Colors.black,
+                      // //   icon: Icon(
+                      // //     Icons.arrow_drop_down_circle_rounded,
+                      // //     color: Colors.white,
+                      // //   ),
+                      // //   underline: Container(),
+                      // //   items: items.map(buildMenuItem).toList(),
+                      // //   onChanged: (value) => setState(() => this.value = value),
+                      // // ),
+                      // PopupMenuButton<String>(
                       //   icon: Icon(
                       //     Icons.arrow_drop_down_circle_rounded,
                       //     color: Colors.white,
                       //   ),
-                      //   underline: Container(),
-                      //   items: items.map(buildMenuItem).toList(),
-                      //   onChanged: (value) => setState(() => this.value = value),
+                      //   onSelected: (String result) {
+                      //     switch (result) {
+                      //       case 'Dark':
+                      //         break;
+                      //       case 'Light':
+                      //         break;
+                      //       case 'Colorful':
+                      //         break;
+                      //       default:
+                      //     }
+                      //   },
+                      //   itemBuilder: (BuildContext context) =>
+                      //       <PopupMenuEntry<String>>[
+                      //     const PopupMenuItem<String>(
+                      //       value: 'Dark',
+                      //       child: Text('Dark'),
+                      //     ),
+                      //     const PopupMenuItem<String>(
+                      //       value: 'Light',
+                      //       child: Text('Light'),
+                      //     ),
+                      //     const PopupMenuItem<String>(
+                      //       value: 'Colorful',
+                      //       child: Text('Colorful'),
+                      //     ),
+                      //   ],
                       // ),
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.arrow_drop_down_circle_rounded,
-                          color: Colors.white,
-                        ),
-                        onSelected: (String result) {
-                          switch (result) {
-                            case 'Dark':
-                              break;
-                            case 'Light':
-                              break;
-                            case 'Colorful':
-                              break;
-                            default:
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'Dark',
-                            child: Text('Dark'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'Light',
-                            child: Text('Light'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'Colorful',
-                            child: Text('Colorful'),
-                          ),
-                        ],
-                      ),
                       // IconButton(
                       //   onPressed: null,
                       //   icon: Icon(

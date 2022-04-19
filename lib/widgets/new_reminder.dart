@@ -213,110 +213,147 @@ class _NewReminderState extends State<NewReminder> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        child: Container(
-          padding: EdgeInsets.only(
-            top: 10,
-            left: 10,
-            right: 10,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 10,
+          left: 10,
+          right: 10,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(35),
+            topRight: Radius.circular(35),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              TextField(
-                decoration: const InputDecoration(labelText: 'Reminder'),
-                textCapitalization: TextCapitalization.sentences,
-                controller: titleController,
-                onSubmitted: (_) => _submitData(),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), //color of shadow
+              spreadRadius: 5, //spread radius
+              blurRadius: 7, // blur radius
+              offset: Offset(0, 2),
+            )
+          ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color.fromARGB(255, 108, 0, 250),Color.fromARGB(255, 12, 0, 30)]
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            TextField(
+              cursorColor: Colors.white,
+              autofocus: true,
+              style: TextStyle(
+                color: Colors.white
               ),
-              Container(
-                height: 70,
-                child: Row(
-                  children: <Widget>[
-                    if (widget.type == 'once') ...[
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary,
-                        ),
-                        child: const Text(
-                          'Choose date and time',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          pickedDateTime = await pickDateTime(context);
-                        },
+              decoration: const InputDecoration(labelText: 'Reminder', labelStyle: TextStyle(color: Colors.white), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)), focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white))),
+              textCapitalization: TextCapitalization.sentences,
+              controller: titleController,
+              onSubmitted: (_) => _submitData(),
+            ),
+            Container(
+              height: 70,
+              child: Row(
+                children: <Widget>[
+                  if (widget.type == 'once') ...[
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).colorScheme.primary,
                       ),
-                    ] else if (widget.type == 'weekly') ...[
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary,
+                      child: const Text(
+                        'Choose date and time',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
-                        child: const Text(
-                          'Choose schedule',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          pickedSchedule = await pickSchedule(context);
-                        },
                       ),
-                    ] else if (widget.type == 'daily') ...[
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary,
-                        ),
-                        child: const Text(
-                          'Choose time',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          pickedTime = await pickTime(context);
-                        },
+                      onPressed: () async {
+                        pickedDateTime = await pickDateTime(context);
+                      },
+                    ),
+                  ] else if (widget.type == 'weekly') ...[
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).colorScheme.primary,
                       ),
-                    ] else
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary,
+                      child: const Text(
+                        'Choose schedule',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
-                        child: const Text(
-                          'Choose interval in hours',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      ),
+                      onPressed: () async {
+                        pickedSchedule = await pickSchedule(context);
+                      },
+                    ),
+                  ] else if (widget.type == 'daily') ...[
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: const Text(
+                        'Choose time',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
-                        onPressed: () async {
-                          void pickHours(int hours) {
-                            pickedHours = hours;
-                          }
+                      ),
+                      onPressed: () async {
+                        pickedTime = await pickTime(context);
+                      },
+                    ),
+                  ] else
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: const Text(
+                        'Choose interval in hours',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
+                        ),
+                      ),
+                      onPressed: () async {
+                        void pickHours(int hours) {
+                          pickedHours = hours;
+                        }
 
-                          await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (ctx) => IntegerExample(pickHours)));
-                          debugPrint('Picked hours: $pickedHours');
-                        },
-                      ),
-                  ],
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (ctx) => IntegerExample(pickHours)));
+                        debugPrint('Picked hours: $pickedHours');
+                      },
+                    ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              child: const Text(
+                'Add Reminder',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 108, 0, 250)
                 ),
               ),
-              ElevatedButton(
-                child: const Text('Add Reminder'),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).primaryColor),
-                  textStyle: MaterialStateProperty.all(
-                    const TextStyle(color: Colors.white),
-                  ),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)
                 ),
-                onPressed: _submitData,
-              )
-            ],
-          ),
+                primary: Colors.white
+              ),
+              // ButtonStyle(
+              //   // shape: MaterialStateProperty.all(OutlinedBorder()),
+              //   backgroundColor:
+              //       MaterialStateProperty.all(Colors.white),
+              //   textStyle: MaterialStateProperty.all(
+              //     const TextStyle(color: Colors.white),
+              //   ),
+              // ),
+              onPressed: _submitData,
+            )
+          ],
         ),
       ),
     );

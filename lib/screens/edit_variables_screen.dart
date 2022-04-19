@@ -520,120 +520,126 @@ class _EditVariablesScreenState extends State<EditVariablesScreen> with SingleTi
                                 }
                                 var data = snapshot.data.docs;
                                 data = data.sublist(data.length - 1, data.length);
-                                return Container(
-                                  height: 130,
-                                  margin: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(30),
-                                    boxShadow:[ 
-                                      BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          spreadRadius: 5,
-                                          blurRadius: 7,
-                                          offset: Offset(0, 5),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 7,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                              children: [
-                                                Text(docs[index]['name']),
-                                                SizedBox(width: 120),
-                                                Text(docs[index]['unit']),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(left: 15, right: 15),
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(50),
-                                                child: LinearProgressIndicator(
-                                                  value: data.last['score']/data.last['target'],
-                                                  minHeight: 10,
-                                                  backgroundColor: Colors.grey.shade100,
-                                                  color: Color(getColor(docs[index]['color'])),
+                                if(docs[index]['name'] != "Mood")
+                                {
+                                  return Container(
+                                    height: 130,
+                                    margin: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(30),
+                                      boxShadow:[ 
+                                        BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 5,
+                                            blurRadius: 7,
+                                            offset: Offset(0, 5),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 7,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                children: [
+                                                  Text(docs[index]['name']),
+                                                  SizedBox(width: 120),
+                                                  Text(docs[index]['unit']),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(left: 15, right: 15),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(50),
+                                                  child: LinearProgressIndicator(
+                                                    value: data.last['score']/data.last['target'],
+                                                    minHeight: 10,
+                                                    backgroundColor: Colors.grey.shade100,
+                                                    color: Color(getColor(docs[index]['color'])),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(right: 15),
-                                                  child: Text(data.last['score'].toString() + "/" + data.last['target'].toString()),
-                                                )
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 8.0),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              FloatingActionButton(
-                                                heroTag: null,
-                                                backgroundColor: Color(getColor(docs[index]['color'])),
-                                                foregroundColor: Colors.white,
-                                                child: Icon(Icons.delete),
-                                                mini: true,
-                                                onPressed: () async {
-                                                  bool delete = await deleteVariableDialog(context);
-                                                  // print(delete);
-                                                  if (delete) {
-                                                    firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
-                                                  }
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                                },
-                                              ),
-                                              FloatingActionButton(
-                                                heroTag: null,
-                                                backgroundColor: Color(getColor(docs[index]['color'])),
-                                                foregroundColor: Colors.white,
-                                                child: Icon(Icons.edit),
-                                                mini: true,
-                                                onPressed: () async {
-                                                  // print(docs[index]);
-                                                  Variable newVariable = await editVariableDialog(context, docs[index], data.last);
-                                                  for(var i in data) {
-                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
-                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
-                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
-                                                      // print(i['date']);
-                                                      // print("Date found");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'target': newVariable.target});
-                                                      break;
-                                                    }
-                                                    else {
-                                                      // print("New document");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
-                                                    }
-                                                  }
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
-                                                  // // print(delete);
-                                                  // if (delete) {
-                                                  //   firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
-                                                  // }
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
-                                                },
-                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 15),
+                                                    child: Text(data.last['score'].toString() + "/" + data.last['target'].toString()),
+                                                  )
+                                                ],
+                                              )
                                             ],
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                        Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(right: 8.0),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                FloatingActionButton(
+                                                  heroTag: null,
+                                                  backgroundColor: Color(getColor(docs[index]['color'])),
+                                                  foregroundColor: Colors.white,
+                                                  child: Icon(Icons.delete),
+                                                  mini: true,
+                                                  onPressed: () async {
+                                                    bool delete = await deleteVariableDialog(context);
+                                                    // print(delete);
+                                                    if (delete) {
+                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
+                                                    }
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
+                                                  },
+                                                ),
+                                                FloatingActionButton(
+                                                  heroTag: null,
+                                                  backgroundColor: Color(getColor(docs[index]['color'])),
+                                                  foregroundColor: Colors.white,
+                                                  child: Icon(Icons.edit),
+                                                  mini: true,
+                                                  onPressed: () async {
+                                                    // print(docs[index]);
+                                                    Variable newVariable = await editVariableDialog(context, docs[index], data.last);
+                                                    for(var i in data) {
+                                                      // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                      // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                      if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                        // print(i['date']);
+                                                        // print("Date found");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'target': newVariable.target});
+                                                        break;
+                                                      }
+                                                      else {
+                                                        // print("New document");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
+                                                      }
+                                                    }
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(newVariable.name).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': newVariable.target});
+                                                    // // print(delete);
+                                                    // if (delete) {
+                                                    //   firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).delete();
+                                                    // }
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': docs[index]['achieved'] + 1});
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                else {
+                                  return Container();
+                                }
                               }
                             );
                           }),

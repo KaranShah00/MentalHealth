@@ -5,11 +5,11 @@ class NavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 90,
+      height: 50,
       margin: EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.bottomCenter,
       child: Center(
-          child: Text('Playing Now',style: TextStyle(fontSize: 20,color: darkPrimaryColor,fontWeight: FontWeight.w500),),
+          child: Text('Playing Now',style: TextStyle(fontSize: 20,color: Colors.black, fontWeight: FontWeight.w400, letterSpacing: 3),),
       ),
     );
   }

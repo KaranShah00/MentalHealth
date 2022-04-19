@@ -86,10 +86,11 @@ Future<NotificationWeekAndTime?> pickSchedule(
                     selectedDay = index + 1;
                     Navigator.pop(context);
                   },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Colors.blue,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
                     ),
+                    primary: Color.fromARGB(255, 108, 0, 250)
                   ),
                   child: Text(weekdays[index]),
                 ),

@@ -77,7 +77,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
                 Icons.help,
               ),
               label: 'Help',
-              backgroundColor: Color(0xff8000ff),
+              backgroundColor: Color.fromARGB(255, 255, 64, 0),
               // backgroundColor: Colors.grey,
             ),
             BottomNavigationBarItem(
@@ -85,7 +85,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
                 Icons.schedule,
               ),
               label: 'Reminders',
-              backgroundColor: Colors.pinkAccent,
+              backgroundColor: Color.fromARGB(255, 84, 1, 193),
             ),
             BottomNavigationBarItem(
               icon: Icon(
@@ -133,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
+  late String name = "";
 
   Map<String, List<Color>> color = {
     'red': [Color.fromARGB(255, 255, 111, 0),Color.fromARGB(255, 220, 23, 23),],
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
     data = firestore.collection('users').doc(user?.uid);
     data.get().then((value) {
       setState(() {
-        // name = value.data()!['username'];
+        name = value.data()!['username'];
         trackDataValue = value.data()!['track'];
         // _isLoading = false;
       });
@@ -216,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hi Harsh".toUpperCase(),
+                    "Hi ".toUpperCase() + name.toUpperCase(),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 3,
@@ -243,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  child: card("Depression Checker", color['blue']),
+                  child: card("Depression Checker", color['blue'], Icon(Icons.face_retouching_natural_sharp, color: Colors.white, size: 40,)),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
@@ -252,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ),
                 GestureDetector(
-                  child: card("Mood Checker", color['green']),
+                  child: card("Mood Checker", color['green'], Icon(Icons.tag_faces_rounded, color: Colors.white, size: 40,)),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
@@ -269,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  child: card("My Journal", color['red']),
+                  child: card("My Journal", color['red'], Icon(Icons.menu_book, color: Colors.white, size: 40,)),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
@@ -278,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ),
                 GestureDetector(
-                  child: card("Facial Detection", color['yellow']),
+                  child: card("Facial Detection", color['yellow'], Icon(Icons.face, color: Colors.white, size: 40,)),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
@@ -314,7 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  Widget card(String title, List<Color>? color) {
+
+  Widget card(String title, List<Color>? color, Icon icon) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Container(
@@ -338,17 +340,24 @@ class _HomeScreenState extends State<HomeScreen> {
               colors: color!
             ),
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            // letterSpacing: 3,
-            fontSize: 18,
-            // shadows: [
-            //   Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 5)
-            // ],
-            color: Colors.white,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(height: 10,),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w300,
+                // letterSpacing: 3,
+                fontSize: 18,
+                // shadows: [
+                //   Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 5)
+                // ],
+                color: Colors.white,
+              ),
+            ),
+          ],
         )),
     );
   }

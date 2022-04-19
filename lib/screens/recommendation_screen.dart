@@ -13,6 +13,7 @@ import 'package:mental_health/screens/stats_screen.dart';
 import 'package:mental_health/screens/reminders_screen.dart';
 import 'package:mental_health/screens/help_screen.dart';
 import './music_screen.dart';
+import './home_screen.dart';
 import './exercise_screen.dart';
 import './depression_questionnaire_screen.dart';
 import './journal_screen.dart';
@@ -32,6 +33,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
+  late String name = "";
   FirebaseStorage? storage;
   Reference? ref;
   var _isLoading = false;
@@ -52,7 +54,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     ref = storage!.ref('/${widget.mood}');
     data.get().then((value) {
       setState(() {
-        // name = value.data()!['username'];
+        name = value.data()!['username'];
         trackDataValue = value.data()!['track'];
         // _isLoading = false;
       });
@@ -118,10 +120,10 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Ready to be happy?".toUpperCase(),
+                    "Relax  •  Engage  •  Unwind",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 3,
@@ -148,7 +150,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  child: card("Music", color['blue']),
+                  child: card("Music", color['blue'], Icon(Icons.music_note, color: Colors.white, size: 40,)),
                   onTap:() async{
                     if(!_isLoading) {
                     setState(() {
@@ -172,13 +174,13 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                     Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return MusicScreen();
+                      return MusicScreen('Music');
                     }),
                   );
                   }
                 ),
                 GestureDetector(
-                  child: card("Meditation", color['green']),
+                  child: card("Meditation", color['green'], Icon(Icons.man, color: Colors.white, size: 40,)),
                   onTap:() async{
                     if(!_isLoading) {
                     setState(() {
@@ -204,7 +206,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                     Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return MusicScreen();
+                      return MusicScreen('Meditation');
                     }),
                   );
                   }),
@@ -217,7 +219,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
-                  child: card("Exercises", color['red']),
+                  child: card("Exercises", color['red'], Icon(Icons.directions_walk_sharp, color: Colors.white, size: 40,)),
                   onTap:() => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
@@ -262,7 +264,8 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       ),
     );
   }
-  Widget card(String title, List<Color>? color) {
+
+  Widget card(String title, List<Color>? color, Icon icon) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Container(
@@ -286,17 +289,24 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               colors: color!
             ),
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            // letterSpacing: 3,
-            fontSize: 18,
-            // shadows: [
-            //   Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 5)
-            // ],
-            color: Colors.white,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(height: 10,),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w300,
+                // letterSpacing: 3,
+                fontSize: 18,
+                // shadows: [
+                //   Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 5)
+                // ],
+                color: Colors.white,
+              ),
+            ),
+          ],
         )),
     );
   }

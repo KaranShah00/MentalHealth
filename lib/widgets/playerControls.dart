@@ -16,11 +16,11 @@ class PlayerControls extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          Controls(
-            icon: Icons.repeat,
-            type: 'load',
-            ref: ref,
-          ),
+          // Controls(
+          //   icon: Icons.repeat,
+          //   type: 'load',
+          //   ref: ref,
+          // ),
           Controls(icon: Icons.skip_previous, type: 'prev'),
           PlayControl(),
           Controls(icon: Icons.skip_next, type: 'next'),
@@ -51,40 +51,40 @@ class PlayControl extends StatelessWidget {
             color: primaryColor,
             shape: BoxShape.circle,
             boxShadow: [
-              BoxShadow(
-                  color: darkPrimaryColor.withOpacity(0.5),
-                  offset: Offset(5, 10),
-                  spreadRadius: 3,
-                  blurRadius: 10),
-              BoxShadow(
-                  color: Colors.white,
-                  offset: Offset(-3, -4),
-                  spreadRadius: -2,
-                  blurRadius: 20)
+              BoxShadow(color: Colors.grey,
+                  offset: Offset(5,5),
+                  spreadRadius: 1,
+                  blurRadius: 10
+              ),
+              // BoxShadow(
+              //     color: Colors.white,
+              //     offset: Offset(-3, -4),
+              //     spreadRadius: -2,
+              //     blurRadius: 20)
             ],
           ),
           child: Stack(
             children: <Widget>[
-              Center(
-                child: Container(
-                  margin: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                      color: darkPrimaryColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            color: darkPrimaryColor.withOpacity(0.5),
-                            offset: Offset(5, 10),
-                            spreadRadius: 3,
-                            blurRadius: 10),
-                        BoxShadow(
-                            color: Colors.white,
-                            offset: Offset(-3, -4),
-                            spreadRadius: -2,
-                            blurRadius: 20)
-                      ]),
-                ),
-              ),
+              // Center(
+              //   child: Container(
+              //     margin: EdgeInsets.all(6),
+              //     decoration: BoxDecoration(
+              //         color: darkPrimaryColor,
+              //         shape: BoxShape.circle,
+              //         boxShadow: [
+              //           BoxShadow(color: Colors.grey,
+              //               offset: Offset(5,5),
+              //               spreadRadius: 1,
+              //               blurRadius: 10
+              //           ),
+              //           // BoxShadow(
+              //           //     color: Colors.white,
+              //           //     offset: Offset(-3, -4),
+              //           //     spreadRadius: -2,
+              //           //     blurRadius: 20)
+              //         ]),
+              //   ),
+              // ),
               Center(
                 child: Container(
                   margin: EdgeInsets.all(12),
@@ -96,7 +96,7 @@ class PlayControl extends StatelessWidget {
                         ? Icons.pause
                         : Icons.play_arrow,
                     size: 50,
-                    color: darkPrimaryColor,
+                    color: Colors.white,
                   )),
                 ),
               ),
@@ -147,40 +147,40 @@ class Controls extends StatelessWidget {
             color: primaryColor,
             shape: BoxShape.circle,
             boxShadow: [
-              BoxShadow(
-                  color: darkPrimaryColor.withOpacity(0.5),
-                  offset: Offset(5, 10),
-                  spreadRadius: 3,
-                  blurRadius: 10),
-              BoxShadow(
-                  color: Colors.white,
-                  offset: Offset(-3, -4),
-                  spreadRadius: -2,
-                  blurRadius: 20)
+              BoxShadow(color: Colors.grey,
+                  offset: Offset(5,5),
+                  spreadRadius: 1,
+                  blurRadius: 10
+              ),
+              // BoxShadow(
+              //     color: Colors.white,
+              //     offset: Offset(-3, -4),
+              //     spreadRadius: -2,
+              //     blurRadius: 20)
             ],
           ),
           child: Stack(
             children: <Widget>[
-              Center(
-                child: Container(
-                  margin: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            color: darkPrimaryColor.withOpacity(0.5),
-                            offset: Offset(5, 10),
-                            spreadRadius: 3,
-                            blurRadius: 10),
-                        BoxShadow(
-                            color: Colors.white,
-                            offset: Offset(-3, -4),
-                            spreadRadius: -2,
-                            blurRadius: 20)
-                      ]),
-                ),
-              ),
+              // Center(
+              //   child: Container(
+              //     margin: EdgeInsets.all(6),
+              //     decoration: BoxDecoration(
+              //         color: Colors.grey,
+              //         shape: BoxShape.circle,
+              //         boxShadow: [
+              //           BoxShadow(color: Colors.grey,
+              //               offset: Offset(5,5),
+              //               spreadRadius: 1,
+              //               blurRadius: 10
+              //           ),
+              //           // BoxShadow(
+              //           //     color: Colors.white,
+              //           //     offset: Offset(-3, -4),
+              //           //     spreadRadius: -2,
+              //           //     blurRadius: 20)
+              //         ]),
+              //   ),
+              // ),
               Center(
                 child: Container(
                   margin: EdgeInsets.all(10),
@@ -190,7 +190,7 @@ class Controls extends StatelessWidget {
                       child: Icon(
                     icon,
                     size: 30,
-                    color: darkPrimaryColor,
+                    color: Colors.white,
                   )),
                 ),
               ),

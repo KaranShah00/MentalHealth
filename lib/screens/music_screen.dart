@@ -13,7 +13,8 @@ import '../widgets/notification_utils.dart';
 
 class MusicScreen extends StatefulWidget {
   //List<Map<String, String>> data;
-  MusicScreen({Key? key}) : super(key: key);
+  String header;
+  MusicScreen(this.header, {Key? key}) : super(key: key);
 
   @override
   _MusicScreenState createState() => _MusicScreenState();
@@ -66,8 +67,8 @@ class _MusicScreenState extends State<MusicScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xff81dc17),
-          title: const Text('Music'),
+          // backgroundColor: const Color(0xff81dc17),
+          title: Text(widget.header),
           actions: [
             TextButton(
                 child: Icon(
@@ -78,6 +79,20 @@ class _MusicScreenState extends State<MusicScreen> {
                   FirebaseAuth.instance.signOut();
                 }),
           ],
+          flexibleSpace: Container(
+            decoration: new BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 68, 175, 231),
+                  Color.fromARGB(255, 13, 42, 79)
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp
+              ),
+            ),
+          ),
         ),
         body: data.isEmpty ? Center(child: CircularProgressIndicator(),) : Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -101,7 +116,7 @@ class _MusicScreenState extends State<MusicScreen> {
                   style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w500,
-                      color: darkPrimaryColor),
+                      color: Colors.grey.shade900),
                 ),
               ),
             ),
@@ -122,8 +137,8 @@ class _MusicScreenState extends State<MusicScreen> {
                   child: Consumer<MyAudio>(
                     builder:(_,myAudioModel,child)=> Slider(
                       value: myAudioModel.position==null? 0 : myAudioModel.position.inMilliseconds.toDouble() ,
-                      activeColor: darkPrimaryColor,
-                      inactiveColor: darkPrimaryColor.withOpacity(0.3),
+                      activeColor: primaryColor,
+                      inactiveColor: primaryColor.withOpacity(0.3),
                       onChanged: (value) {
     
                         myAudioModel.seekAudio(Duration(milliseconds: value.toInt()));

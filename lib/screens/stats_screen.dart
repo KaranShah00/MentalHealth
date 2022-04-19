@@ -54,93 +54,82 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   late QueryDocumentSnapshot _variable;
   var now = DateFormat("dd-MM-yy").format(DateTime.now());
   String currentVariable = "Water";
+  List<FlSpot> dataMoodWeek = [];
+  List<FlSpot> dataMoodMonth = [];
+  List<FlSpot> dataMoodYear = [];
+  var isLoading = true;
 
-  List<Data> spotsWater = List<Data>.generate(365, (i) =>
-    Data(
-      DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
-    )
-  );
-  List<Data> spotsCoffee = List<Data>.generate(365, (i) =>
-    Data(
-      DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
-    )
-  );
-  List<Data> spotsExercise = List<Data>.generate(365, (i) =>
-    Data(
-      DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
-    )
-  );
-  List<Data> spotsMeditation = List<Data>.generate(365, (i) =>
-    Data(
-      DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
-    )
-  );
-  List<Data> spotsRest = List<Data>.generate(365, (i) =>
-    Data(
-      DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
-    )
-  );
+  // List<Data> spotsWater = List<Data>.generate(365, (i) =>
+  //   Data(
+  //     DateTime.utc(
+  //       DateTime.now().year,
+  //       DateTime.now().month,
+  //       DateTime.now().day,
+  //     ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+  //   )
+  // );
+  // List<Data> spotsCoffee = List<Data>.generate(365, (i) =>
+  //   Data(
+  //     DateTime.utc(
+  //       DateTime.now().year,
+  //       DateTime.now().month,
+  //       DateTime.now().day,
+  //     ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+  //   )
+  // );
+  // List<Data> spotsExercise = List<Data>.generate(365, (i) =>
+  //   Data(
+  //     DateTime.utc(
+  //       DateTime.now().year,
+  //       DateTime.now().month,
+  //       DateTime.now().day,
+  //     ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+  //   )
+  // );
+  // List<Data> spotsMeditation = List<Data>.generate(365, (i) =>
+  //   Data(
+  //     DateTime.utc(
+  //       DateTime.now().year,
+  //       DateTime.now().month,
+  //       DateTime.now().day,
+  //     ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+  //   )
+  // );
+  // List<Data> spotsRest = List<Data>.generate(365, (i) =>
+  //   Data(
+  //     DateTime.utc(
+  //       DateTime.now().year,
+  //       DateTime.now().month,
+  //       DateTime.now().day,
+  //     ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+  //   )
+  // );
   List<Data> spotsMood = List<Data>.generate(365, (i) =>
     Data(
       DateTime.utc(
         DateTime.now().year,
         DateTime.now().month,
         DateTime.now().day,
-      ).subtract(Duration(days: i)), (math.Random().nextInt(20)), 0
+      ).subtract(Duration(days: i)), (math.Random().nextDouble()), 0
     )
   );
 
-  Future<List<Data>> _getData() async {
-    List<Data> returnData = [];
-    var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date',descending: true);
-    // int currentTarget = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['target']) as int;
-    // var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').get();
-    await singularData.get().then((data){
-      // print(data.docs.length);
-      for(var instance in data.docs) {
-        var d = instance.data();
-        returnData.add(Data(d['date'].toDate(), d['score'], 0));
-        // print("This is what is returned:\n");
-        // print(returnData[0].date);
-        // print(d['date'].toDate());
-      }
-    });
-    return returnData;
-  }
-  // Future<int> _getMonthlyAchievedData() async {
-  //   int sum = 0;
-  //   var data = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date');
-  //   await data.get().then((data){
+  // Future<List<Data>> _getData() async {
+  //   List<Data> returnData = [];
+  //   var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['name']).collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date',descending: true);
+  //   // int currentTarget = firestore.collection('users').doc(user?.uid).collection('variables').doc(_variable['target']) as int;
+  //   // var singularData = firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').get();
+  //   await singularData.get().then((data){
   //     // print(data.docs.length);
   //     for(var instance in data.docs) {
   //       var d = instance.data();
-  //       sum += (d['achieved']);
+  //       returnData.add(Data(d['date'].toDate(), d['score'], 0));
   //       // print("This is what is returned:\n");
   //       // print(returnData[0].date);
   //       // print(d['date'].toDate());
   //     }
   //   });
-  //   return sum;
+  //   return returnData;
   // }
 
   @override
@@ -149,13 +138,47 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
     stream = firestore.collection('users').doc(user?.uid).collection('variables').snapshots();
+    // loadMoodData();
+  }
+
+  void loadMoodData(double maxYvalueWeek, double maxYvalueMonth, double maxYvalueYear) {
+    var MoodData = firestore.collection('users').doc(user?.uid).collection('variables').doc('Mood').collection('data').where('date', isGreaterThan: DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).subtract(Duration(days: 365))).orderBy('date');
+    var finalData = [];
+    print("Scaling by " + maxYvalueWeek.toString() + " " + maxYvalueMonth.toString() + " " + maxYvalueYear.toString());
+    MoodData.get().then((data) {
+      finalData = data.docs;
+      // print("Data Length: " + data.docs.length.toString() + ":\n");
+      for(var instance in data.docs) {
+        var d = instance.data();
+        // print(d);
+      }
+      dataMoodWeek = finalData.sublist(math.max(0,finalData.length - 7), finalData.length).asMap().entries.map((e) {
+      // print("Getting E as " + e.value.data()['score'].toString());
+      return FlSpot(e.key.toDouble() + math.max((7 - finalData.length), 0), e.value.data()['score'].toDouble() * maxYvalueWeek);
+      }).toList();
+
+      dataMoodMonth = finalData.sublist(math.max(0,finalData.length - 30), finalData.length).asMap().entries.map((e) {
+      // print("Getting E as " + e.value.data()['score'].toString());
+      return FlSpot(e.key.toDouble() + math.max((30 - finalData.length), 0), e.value.data()['score'].toDouble() * maxYvalueMonth);
+      }).toList();
+
+      dataMoodYear = finalData.sublist(math.max(0,finalData.length - 12), finalData.length).asMap().entries.map((e) {
+      // print("Getting E as " + e.value.data()['score'].toString());
+      return FlSpot(e.key.toDouble() + math.max((12 - finalData.length), 0), e.value.data()['score'].toDouble() * maxYvalueYear);
+      }).toList();
+      // print("Data Mood Week: " + dataMoodWeek.toString());
+      setState(() {
+        isLoading = false;
+      });
+    });
+    // finalData.sublist(math.max(finalData.length - 7, 0), finalData.length);
+    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: Color(0xffffba00),
         title: Text('Mental Wellness'),
         actions: [
           TextButton(
@@ -184,6 +207,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       body: StreamBuilder(
         stream: stream,
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          // dataMoodWeek = finalData.sublist(math.max(0,finalData.length - 7), finalData.length).asMap().entries.map((e) {
+          //   // print("Getting E as " + e.value.data()['score'].toString());
+          //   return FlSpot(e.key.toDouble() + math.max((7 - finalData.length), 0), e.value.data()['score'].toDouble());
+          // }).toList();
           // print("Test print");
           if (!snapshot.hasData) {
             // print("Loading\n");
@@ -212,11 +239,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                       offset: Offset(0, 2),
                     )
                   ],
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Colors.yellow,Colors.yellow.shade700]
-                    ),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.yellow,Colors.yellow.shade700]
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -278,34 +305,65 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                         //     return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
                         //   }).toList();
                           List<FlSpot> dataWeek = [];
+                          double maxYvalueWeek = 1.0;
+                          finalData.sublist(math.max(0,finalData.length - 7), finalData.length).asMap().entries.forEach((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            if (e.value.data()['score'].toDouble() >maxYvalueWeek) {
+                              maxYvalueWeek = e.value.data()['score'].toDouble();
+                            }
+                          });
                           dataWeek = finalData.sublist(math.max(0,finalData.length - 7), finalData.length).asMap().entries.map((e) {
                             // print("Getting E as " + e.value.data()['score'].toString());
                             return FlSpot(e.key.toDouble() + math.max((7 - finalData.length), 0), e.value.data()['score'].toDouble());
                           }).toList();
+                          // print("Data Week: " + dataWeek.toString());
 
                           List<FlSpot> dataMonth = [];
+                          double maxYvalueMonth = 1.0;
+                          finalData.sublist(math.max(0,finalData.length - 30), finalData.length).asMap().entries.forEach((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            if (e.value.data()['score'].toDouble() >maxYvalueMonth) {
+                              maxYvalueMonth = e.value.data()['score'].toDouble();
+                            }
+                          });
                           dataMonth = finalData.sublist(math.max(0,finalData.length - 30), finalData.length).asMap().entries.map((e) {
                             // print("Getting E as " + e.value.data()['score'].toString());
-                            return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
+                            return FlSpot(e.key.toDouble() + math.max((30 - finalData.length), 0), e.value.data()['score'].toDouble());
                           }).toList();
+                          // print("Data Month: " + dataMonth.toString());
 
                           List<FlSpot> dataYear = [];
+                          double maxYvalueYear = 1.0;
+                          finalData.sublist(math.max(0,finalData.length - 12), finalData.length).asMap().entries.forEach((e) {
+                            // print("Getting E as " + e.value.data()['score'].toString());
+                            if (e.value.data()['score'].toDouble() >maxYvalueYear) {
+                              maxYvalueYear = e.value.data()['score'].toDouble();
+                            }
+                          });
                           dataYear = finalData.sublist(math.max(0,finalData.length - 12), finalData.length).asMap().entries.map((e) {
                             // print("Getting E as " + e.value.data()['score'].toString());
-                            return FlSpot(e.key.toDouble(), e.value.data()['score'].toDouble());
+                            return FlSpot(e.key.toDouble() + math.max((12 - finalData.length), 0), e.value.data()['score'].toDouble());
                           }).toList();
+                          loadMoodData(maxYvalueWeek, maxYvalueMonth, maxYvalueYear);
                           // print(data.sublist(0,7).reversed.toList());
                         // }
-                        return Expanded(
+                        return isLoading? Center(
+                          child: CircularProgressIndicator(),
+                        ) : Expanded(
                           child: TabBarView (
                             controller: _tabController,
                             children: <Widget>[
                               LineChart(
                                 LineChartData(
+                                  lineTouchData: LineTouchData(
+                                    touchTooltipData: LineTouchTooltipData(
+                                      fitInsideVertically: true
+                                    )
+                                  ),
                                   minX: 0,
                                   maxX: 7,
                                   minY: 0,
-                                  maxY: 25,
+                                  maxY: maxYvalueWeek + 5,
                                   titlesData: LineTilesWeek.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -333,9 +391,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       dotData: FlDotData(show: false,),
                                     ),
                                     LineChartBarData(
-                                      spots:  spotsMood.sublist(0,7).asMap().entries.map((e) {
-                                        return FlSpot(e.key.toDouble(), e.value.score.toDouble());
-                                      }).toList(),
+                                      spots:  dataMoodWeek,
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -353,10 +409,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                               ),
                               LineChart(
                                 LineChartData(
+                                  lineTouchData: LineTouchData(
+                                    touchTooltipData: LineTouchTooltipData(
+                                      fitInsideVertically: true
+                                    )
+                                  ),
                                   minX: 0,
                                   maxX: 31,
                                   minY: 0,
-                                  maxY: 25,
+                                  maxY: maxYvalueMonth + 5,
                                   titlesData: LineTilesMonth.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -381,9 +442,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       dotData: FlDotData(show: false),
                                     ),
                                     LineChartBarData(
-                                      spots:  spotsMood.sublist(0,30).asMap().entries.map((e) {
-                                        return FlSpot(e.key.toDouble(), e.value.score.toDouble());
-                                      }).toList(),
+                                      spots:  dataMoodMonth,
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -401,10 +460,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                               ),
                               LineChart(
                                 LineChartData(
+                                  lineTouchData: LineTouchData(
+                                    touchTooltipData: LineTouchTooltipData(
+                                      fitInsideVertically: true
+                                    )
+                                  ),
                                   minX: 0,
                                   maxX: 12,
                                   minY: 0,
-                                  maxY: 25,
+                                  maxY: maxYvalueYear + 5,
                                   titlesData: LineTilesYear.getTitleData(),
                                   gridData: FlGridData(
                                     show: false,
@@ -429,9 +493,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                       dotData: FlDotData(show: false),
                                     ),
                                     LineChartBarData(
-                                      spots: spotsMood.sublist(0,12).asMap().entries.map((e) {
-                                        return FlSpot(e.key.toDouble(), e.value.score.toDouble());
-                                      }).toList(),
+                                      spots: dataMoodYear,
                                       shadow: const Shadow(
                                         color: Color(0xffaaaaaa),
                                         blurRadius: 1,
@@ -535,7 +597,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                       GlowingOverscrollColorChanger(
                         color: Colors.amber,
                         child: ListView(
-                          children: docs.length == 0 ? [Text("Add variables")]: List.generate(docs.length, (index) {
+                          children: docs.length - 1 == 0 ? [Text("Add variables")]: List.generate(docs.length, (index) {
                           // var dataSnapshot = firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString());
                           // int score, target;
                           // dataSnapshot.get().then((data){
@@ -557,155 +619,161 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                                 data = data.sublist(data.length - 1, data.length);
                                 // print(data.last['score']);
                                 // _variable = docs[variableIndex];
-                                return Container(
-                                  height: 130,
-                                  margin: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(30),
-                                    boxShadow:[ 
-                                      BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          spreadRadius: 5,
-                                          blurRadius: 7,
-                                          offset: Offset(0, 5),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Radio<QueryDocumentSnapshot>(
-                                          value: docs[index],
-                                          groupValue: _variable,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _variable = value!;
-                                              currentVariable = docs[index]['name'];
-                                              variableIndex = index;
-                                            });
-                                          },
-                                          activeColor: Color(getColor(docs[index]['color'])),
+                                if(docs[index]['name'] != 'Mood')
+                                {
+                                  return Container(
+                                    height: 130,
+                                    margin: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(30),
+                                      boxShadow:[ 
+                                        BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 5,
+                                            blurRadius: 7,
+                                            offset: Offset(0, 5),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 7,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                              children: [
-                                                Text(docs[index]['name']),
-                                                SizedBox(width: 120),
-                                                Text(docs[index]['unit']),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(left: 15, right: 15),
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(50),
-                                                child: LinearProgressIndicator(
-                                                  // value: docs[index]['achieved']/docs[index]['target'],
-                                                  // value: data.last['score']/data.last['target'],
-                                                  value: DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score']/data.last['target'] : 0/data.last['target'],
-                                                  minHeight: 10,
-                                                  backgroundColor: Colors.grey.shade100,
-                                                  color: Color(getColor(docs[index]['color'])),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Radio<QueryDocumentSnapshot>(
+                                            value: docs[index],
+                                            groupValue: _variable,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                _variable = value!;
+                                                currentVariable = docs[index]['name'];
+                                                variableIndex = index;
+                                              });
+                                            },
+                                            activeColor: Color(getColor(docs[index]['color'])),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 7,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                children: [
+                                                  Text(docs[index]['name']),
+                                                  SizedBox(width: 120),
+                                                  Text(docs[index]['unit']),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(left: 15, right: 15),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(50),
+                                                  child: LinearProgressIndicator(
+                                                    // value: docs[index]['achieved']/docs[index]['target'],
+                                                    // value: data.last['score']/data.last['target'],
+                                                    value: DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score']/data.last['target'] : 0/data.last['target'],
+                                                    minHeight: 10,
+                                                    backgroundColor: Colors.grey.shade100,
+                                                    color: Color(getColor(docs[index]['color'])),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(right: 15),
-                                                  child: Text(DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score'].toString() + "/" + data.last['target'].toString() : "0/" + data.last['target'].toString()),
-                                                )
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 8.0),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              FloatingActionButton(
-                                                heroTag: null,
-                                                backgroundColor: Color(getColor(docs[index]['color'])),
-                                                foregroundColor: Colors.white,
-                                                child: Icon(Icons.add),
-                                                mini: true,
-                                                onPressed: () {
-                                                  // print(DateFormat.EEEE());
-                                                  // firestore.runTransaction((transaction) async {
-                                                  //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                                  //   await transaction.update(freshSnap.reference, {
-                                                  //     'achieved': freshSnap['achieved'] + 1,
-                                                  //   });
-                                                  // });
-                                                  // QuerySnapshot docRef = ;
-                                                  for(var i in data) {
-                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
-                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
-                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
-                                                      // print(i['date']);
-                                                      // print("Date found");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
-                                                      break;
-                                                    }
-                                                    else {
-                                                      // print("New document");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 1, 'target': data.last['target']});
-                                                    }
-                                                  }
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
-                                                },
-                                              ),
-                                              FloatingActionButton(
-                                                heroTag: null,
-                                                backgroundColor: Color(getColor(docs[index]['color'])),
-                                                foregroundColor: Colors.white,
-                                                child: Icon(Icons.remove),
-                                                mini: true,
-                                                onPressed: () {
-                                                  // firestore.runTransaction((transaction) async {
-                                                  //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
-                                                  //   await transaction.update(freshSnap.reference, {
-                                                  //     'achieved': freshSnap['achieved'] - 1,
-                                                  //   });
-                                                  // });
-                                                  // QuerySnapshot docRef = ;
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
-                                                  for(var i in data) {
-                                                    // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
-                                                    // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
-                                                    if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
-                                                      // print(i['date']);
-                                                      // print("Date found");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
-                                                      break;
-                                                    }
-                                                    else {
-                                                      // print("New document");
-                                                      firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': data.last['target']});
-                                                    }
-                                                  }
-                                                  // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
-                                                },
-                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 15),
+                                                    child: Text(DateFormat("yyyy-MM-dd").format(data.last['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now()) ? data.last['score'].toString() + "/" + data.last['target'].toString() : "0/" + data.last['target'].toString()),
+                                                  )
+                                                ],
+                                              )
                                             ],
                                           ),
-                                        )
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(right: 8.0),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                FloatingActionButton(
+                                                  heroTag: null,
+                                                  backgroundColor: Color(getColor(docs[index]['color'])),
+                                                  foregroundColor: Colors.white,
+                                                  child: Icon(Icons.add),
+                                                  mini: true,
+                                                  onPressed: () {
+                                                    // print(DateFormat.EEEE());
+                                                    // firestore.runTransaction((transaction) async {
+                                                    //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                                                    //   await transaction.update(freshSnap.reference, {
+                                                    //     'achieved': freshSnap['achieved'] + 1,
+                                                    //   });
+                                                    // });
+                                                    // QuerySnapshot docRef = ;
+                                                    for(var i in data) {
+                                                      // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                      // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                      if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                        // print(i['date']);
+                                                        // print("Date found");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
+                                                        break;
+                                                      }
+                                                      else {
+                                                        // print("New document");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 1, 'target': data.last['target']});
+                                                      }
+                                                    }
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': data.last['score'] + 1});
+                                                  },
+                                                ),
+                                                FloatingActionButton(
+                                                  heroTag: null,
+                                                  backgroundColor: Color(getColor(docs[index]['color'])),
+                                                  foregroundColor: Colors.white,
+                                                  child: Icon(Icons.remove),
+                                                  mini: true,
+                                                  onPressed: () {
+                                                    // firestore.runTransaction((transaction) async {
+                                                    //   DocumentSnapshot freshSnap = await transaction.get(docs.reference);
+                                                    //   await transaction.update(freshSnap.reference, {
+                                                    //     'achieved': freshSnap['achieved'] - 1,
+                                                    //   });
+                                                    // });
+                                                    // QuerySnapshot docRef = ;
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).update({'achieved': math.max(docs[index]['achieved'] - 1, 0)});
+                                                    for(var i in data) {
+                                                      // print(DateFormat("yyyy-MM-dd").format(i['date'].toDate()));
+                                                      // print(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+                                                      if (DateFormat("yyyy-MM-dd").format(i['date'].toDate()) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+                                                        // print(i['date']);
+                                                        // print("Date found");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
+                                                        break;
+                                                      }
+                                                      else {
+                                                        // print("New document");
+                                                        firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).set({'date': DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,), 'score': 0, 'target': data.last['target']});
+                                                      }
+                                                    }
+                                                    // firestore.collection('users').doc(user?.uid).collection('variables').doc(docs[index]['name']).collection('data').doc(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day,).toString()).update({'score': math.max(data.last['score'] - 1, 0)});
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                else {
+                                  return Container();
+                                }
                               }
                             );
                           }),
@@ -979,7 +1047,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     int target = 0;
     // print("Doc:" + docs.parent);
     for(int i = math.max(docs.length - 30, 0); i<docs.length; i++) {
-      print("Score:" + score.toString() + " Target: " + target.toString());
+      // print("Score:" + score.toString() + " Target: " + target.toString());
       score += int.parse(docs[i]['score']);
       target += int.parse(docs[i]['target']);
     }
@@ -1219,7 +1287,7 @@ class Variable {
 
 class Data {
   DateTime date;
-  int score;
+  double score;
   int target;
   Data(this.date, this.score, this.target);
 }

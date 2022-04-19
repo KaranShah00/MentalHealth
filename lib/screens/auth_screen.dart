@@ -23,6 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
     Variable("Exercise", "Minutes", 60, 0, "#11c808"),
     Variable("Meditation", "Minutes", 30, 0, "#b6b903"),
     Variable("Rest", "Hours", 8, 0, "#681bb6"),
+    Variable("Mood", "Points", 1, 0, "#ffffff"),
   ];
 
   void _submitAuthForm(String email, String password, String username,
@@ -55,7 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
               'track': false
             });
         
-        for (int i = 0;i < 5; i++) {
+        for (int i = 0;i < defaultVariables.length; i++) {
           await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user?.uid)
@@ -67,17 +68,9 @@ class _AuthScreenState extends State<AuthScreen> {
               'target': defaultVariables[i].target,
               'achieved': defaultVariables[i].achieved,
               'color': defaultVariables[i].color,
-              // 'data': List<Data>.generate(365, (i) =>  Data(
-              //             DateTime.utc(
-              //               DateTime.now().year,
-              //               DateTime.now().month,
-              //               DateTime.now().day,
-              //             ).subtract(Duration(days: i)), (math.Random().nextInt(20))
-              //           )
-              //         ),
             });
 
-            for (int j = 0; j < 30; j++) {
+            for (int j = 0; j < 1; j++) {
               await FirebaseFirestore.instance
               .collection('users')
               .doc(authResult.user?.uid)
@@ -96,7 +89,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               DateTime.now().month,
                               DateTime.now().day,
                             ).subtract(Duration(days: j)),
-                'score': (math.Random().nextInt(20)),
+                'score': (0),
                 'target': (math.Random().nextInt(20) + 1)
               });
             }

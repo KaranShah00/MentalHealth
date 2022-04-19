@@ -114,13 +114,20 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
     if(rem.type == 'weekly') {
       return Row(
         children: [
-          const Icon(Icons.calendar_today),
-          const SizedBox(width: 5,),
+          Icon(Icons.calendar_today),
+          SizedBox(width: 5),
           Text(weekdays[rem.weekday! + 1]),
-          const SizedBox(width: 20,),
-          const Icon(Icons.watch_later),
-          const SizedBox(width: 5,),
-          Text('${rem.hour.toString().padLeft(2, '0')}:${rem.minute.toString().padLeft(2, '0')}')
+          SizedBox(width: 20),
+          Icon(Icons.watch_later),
+          SizedBox(width: 5),
+          Text('${rem.hour.toString().padLeft(2, '0')}:${rem.minute.toString().padLeft(2, '0')}'),
+          // const Icon(Icons.calendar_today),
+          // const SizedBox(width: 5,),
+          // Text(weekdays[rem.weekday! + 1]),
+          // const SizedBox(width: 20,),
+          // const Icon(Icons.watch_later),
+          // const SizedBox(width: 5,),
+          // Text('${rem.hour.toString().padLeft(2, '0')}:${rem.minute.toString().padLeft(2, '0')}')
         ],
       );
     }
@@ -171,7 +178,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xffec407a),
+        // backgroundColor: Color(0xffec407a),
         title: Text('Mental Wellness'),
         actions: [
           TextButton(
@@ -183,10 +190,23 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
                 FirebaseAuth.instance.signOut();
               }),
         ],
+        flexibleSpace: Container(
+          decoration: new BoxDecoration(
+            gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 108, 0, 250),
+                  Color.fromARGB(255, 51, 5, 119)
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                stops: [0.0, 1.0],
+                tileMode: TileMode.clamp),
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       floatingActionButton: SpeedDial(
-        backgroundColor: Color(0xffec407a),
+        backgroundColor: Color.fromARGB(255, 84, 1, 193),
         animatedIcon: AnimatedIcons.add_event,
         overlayOpacity: 0,
         children: [
@@ -196,6 +216,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
             onTap: () async {
               var value;
               value = await showModalBottomSheet(
+                  backgroundColor: Color.fromARGB(0, 0, 0, 0),
                   context: context,
                   builder: (bCtx) => const NewReminder('once'));
               if (value != null) {
@@ -216,6 +237,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
             onTap: () async {
               var value;
               value = await showModalBottomSheet(
+                  backgroundColor: Color.fromARGB(0, 0, 0, 0),
                   context: context,
                   builder: (bCtx) => const NewReminder('hourly'));
               if (value != null) {
@@ -236,6 +258,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
             onTap: () async {
               var value;
               value = await showModalBottomSheet(
+                  backgroundColor: Color.fromARGB(0, 0, 0, 0),
                   context: context,
                   builder: (bCtx) => const NewReminder('daily'));
               if (value != null) {
@@ -256,6 +279,7 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
             onTap: () async {
               var value;
               value = await showModalBottomSheet(
+                  backgroundColor: Color.fromARGB(0, 0, 0, 0),
                   context: context,
                   builder: (bCtx) => const NewReminder('weekly'));
               if (value != null) {
@@ -278,39 +302,152 @@ class _RemindersScreenState extends State<RemindersScreen> with SingleTickerProv
       )
           : SingleChildScrollView(
         child: Column(
-          children: <Widget>[...reminders.map((rem) {
-            return Card(
-              elevation: 5,
-              child: ListTile(
-                title: Text(rem.body),
-                subtitle: displaySubtitle(rem),
-                trailing: IconButton(
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ),
-                  onPressed: () async {
-                    setState(() {
-                      reminders
-                          .removeWhere((element) => element.id == rem.id);
-                    });
-                    await firestore
-                        .collection('users')
-                        .doc(user?.uid)
-                        .collection('reminders')
-                        .doc(rem.docId)
-                        .delete();
-                    await AwesomeNotifications().cancelSchedule(rem.id);
-                    ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Reminder deleted'),
-                      ),
-                    );
-                  },
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(10),
+              height: 100,
+              width: 450,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(35),
+                  bottomRight: Radius.circular(35),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), //color of shadow
+                    spreadRadius: 5, //spread radius
+                    blurRadius: 7, // blur radius
+                    offset: Offset(0, 2),
+                  )
+                ],
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color.fromARGB(255, 64, 1, 211),Color.fromARGB(255, 62, 1, 127)]
                 ),
               ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "YOUR REMINDERS",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3,
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ...reminders.map((rem) {
+            return Container(
+              height: 100,
+              margin: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow:[ 
+                  BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 8,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            rem.body.toUpperCase(),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, letterSpacing: 2),
+                          ),
+                          SizedBox(height: 10,),
+                          displaySubtitle(rem)
+                        ],
+                      ),
+                    )
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: FloatingActionButton(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Color.fromARGB(255, 84, 1, 193),
+                        mini: true,
+                        child: Icon(
+                          Icons.delete,
+                          // color: Color.fromARGB(255, 51, 5, 119),
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            reminders
+                                .removeWhere((element) => element.id == rem.id);
+                          });
+                          await firestore
+                              .collection('users')
+                              .doc(user?.uid)
+                              .collection('reminders')
+                              .doc(rem.docId)
+                              .delete();
+                          await AwesomeNotifications().cancelSchedule(rem.id);
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Reminder deleted'),
+                            ),
+                          );
+                        },
+                      ),
+                    ))
+                ]
+              ),
             );
+            // return Card(
+            //   elevation: 5,
+            //   child: ListTile(
+            //     title: Text(rem.body),
+            //     subtitle: displaySubtitle(rem),
+            //     trailing: IconButton(
+            //       icon: const Icon(
+            //         Icons.delete,
+            //         color: Color.fromARGB(255, 51, 5, 119),
+            //       ),
+            //       onPressed: () async {
+            //         setState(() {
+            //           reminders
+            //               .removeWhere((element) => element.id == rem.id);
+            //         });
+            //         await firestore
+            //             .collection('users')
+            //             .doc(user?.uid)
+            //             .collection('reminders')
+            //             .doc(rem.docId)
+            //             .delete();
+            //         await AwesomeNotifications().cancelSchedule(rem.id);
+            //         ScaffoldMessenger.of(context).removeCurrentSnackBar();
+            //         ScaffoldMessenger.of(context).showSnackBar(
+            //           const SnackBar(
+            //             content: Text('Reminder deleted'),
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //   ),
+            // );
           }).toList(),
             const SizedBox(height: 70,),
           ],
