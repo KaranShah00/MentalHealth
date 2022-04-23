@@ -30,8 +30,8 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
     super.initState();
   }
 
-  int focusedPage = 2;
-  int previousPage = 2;
+  int focusedPage = 4;
+  int previousPage = 4;
   static List<Widget> _widgetOptions = <Widget>[
     HelpScreen(),
     RemindersScreen(),
